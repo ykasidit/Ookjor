@@ -72,6 +72,7 @@ void OokjorWindow::SearchCompleteSlot(int res)
 //ui->statusBar->showMessage(str,3000);
 
     SelectPhoneDialog w;
+    w.exec();
 
     ui->pushButton->setEnabled(true);
 
