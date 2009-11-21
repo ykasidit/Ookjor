@@ -19,6 +19,8 @@
 
 #include "ookjorwindow.h"
 #include "ui_ookjorwindow.h"
+#include "selectphonedialog.h"
+
 
 OokjorWindow::OokjorWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::OokjorWindow)
@@ -62,7 +64,15 @@ void OokjorWindow::on_pushButton_clicked()
 
 void OokjorWindow::SearchCompleteSlot(int res)
 {
-    ui->statusBar->showMessage("Search finished",3000);
+
+    QList<OokjorEngine::TBtDevInfo> devlist;
+    iCOokjorEngine->GetDevListClone(devlist);
+//    QString str;
+  //  str = str.number(devlist.count());
+//ui->statusBar->showMessage(str,3000);
+
+    SelectPhoneDialog w;
+
     ui->pushButton->setEnabled(true);
 
 }
