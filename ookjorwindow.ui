@@ -63,7 +63,7 @@
     <item>
      <widget class="QCheckBox" name="checkBox">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
         <horstretch>1</horstretch>
         <verstretch>1</verstretch>
        </sizepolicy>
