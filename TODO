@@ -1,7 +1,6 @@
-- let pc select phone
-- make pc do sdp
+- make pc do sdp to ookjor phone uuid
 
-- make phone advertise sdp
+- make s60 3rd phone app advertise sdp
 	- auto-accept rfcomm and send screenshots
 
 - pc connect rfcomm and recv screenshots

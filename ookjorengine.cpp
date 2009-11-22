@@ -204,6 +204,7 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
         break;
     case OokjorEngine::EBtSearchingSDP:
     {
+        //this normally wont take so long so no need for a new thread yet - maybe i'll make a new thread for it in the future
 
             //adjusted from http://people.csail.mit.edu/albert/bluez-intro/x604.html
 
