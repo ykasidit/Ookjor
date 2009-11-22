@@ -1,0 +1,9 @@
+- make pc do sdp
+
+- make phone advertise sdp
+	- auto-accept rfcomm and send screenshots
+
+- pc connect rfcomm and recv screenshots
+
+
+
