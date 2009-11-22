@@ -6,6 +6,23 @@ SelectPhoneDialog::SelectPhoneDialog(QWidget *parent) :
     m_ui(new Ui::SelectPhoneDialog)
 {
     m_ui->setupUi(this);
+    iReturnSelectedIndex = NULL;
+}
+
+void SelectPhoneDialog::SetList(QList<OokjorEngine::TBtDevInfo>& aList, int* aReturnSelectedIndex)
+{
+    iReturnSelectedIndex = aReturnSelectedIndex;
+
+    for(int i=0;i<aList.count();i++)
+    {
+        QString str;
+        str = aList[i].iName;
+        str += "  (";
+        str += aList[i].iAddrStr;
+        str += " )";
+        m_ui->listWidget->addItem(str);
+        //m_ui->listWidget->selectedIndexes(
+    }
 }
 
 SelectPhoneDialog::~SelectPhoneDialog()
@@ -23,4 +40,10 @@ void SelectPhoneDialog::changeEvent(QEvent *e)
     default:
         break;
     }
+}
+
+void SelectPhoneDialog::on_listWidget_clicked(QModelIndex index)
+{
+  *iReturnSelectedIndex = index.column();
+  this->close();
 }

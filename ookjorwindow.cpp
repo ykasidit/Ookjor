@@ -19,7 +19,7 @@
 
 #include "ookjorwindow.h"
 #include "ui_ookjorwindow.h"
-#include "selectphonedialog.h"
+
 
 
 OokjorWindow::OokjorWindow(QWidget *parent)
@@ -28,9 +28,11 @@ OokjorWindow::OokjorWindow(QWidget *parent)
     ui->setupUi(this);
     iCOokjorEngine = NULL;
 
-    iCOokjorEngine = new OokjorEngine();
+    iCOokjorEngine = new OokjorEngine(this);
 
-      QObject::connect(iCOokjorEngine, SIGNAL(SearchCompleteSignal(int)),this, SLOT (SearchCompleteSlot(int)));
+    QObject::connect(iCOokjorEngine, SIGNAL(EngineStateChangeSignal(int)),this, SLOT (EngineStateChangeSlot(int)));
+    QObject::connect(iCOokjorEngine, SIGNAL(EngineStatusMessageSignal(QString)),this, SLOT (EngineStatusMessageSlot(QString)));
+
 
     //test load pic
     iPixmap.load("gnu.jpg");
@@ -50,30 +52,48 @@ OokjorWindow::~OokjorWindow()
 
 void OokjorWindow::on_pushButton_clicked()
 {
-    ui->statusBar->showMessage("Searching...",3000);
-    ui->pushButton->setEnabled(false);
-
     if(!iCOokjorEngine->StartSearch())
     {
-        ui->statusBar->showMessage("Start search failed...",3000);
-        ui->pushButton->setEnabled(true);
+        ui->statusBar->showMessage("Start search failed...",3000);        
     }
-
 }
 
 
-void OokjorWindow::SearchCompleteSlot(int res)
+void OokjorWindow::EngineStatusMessageSlot(QString str)
 {
+    ui->statusBar->showMessage(str);
+}
 
-    QList<OokjorEngine::TBtDevInfo> devlist;
-    iCOokjorEngine->GetDevListClone(devlist);
-//    QString str;
-  //  str = str.number(devlist.count());
-//ui->statusBar->showMessage(str,3000);
+void OokjorWindow::EngineStateChangeSlot(int aState)
+{
+    switch(aState)
+    {
+    case OokjorEngine::EBtIdle:
+        ui->pushButton->setText("Connect to Mobile");
+        ui->pushButton->setEnabled(true);
+        break;
+    case OokjorEngine::EBtSearching:
+        ui->pushButton->setEnabled(false);
+        ui->pushButton->setText("Please wait...");
 
-    SelectPhoneDialog w;
-    w.exec();
+        break;
+    case OokjorEngine::EBtSelectingPhoneToSDP:
 
-    ui->pushButton->setEnabled(true);
+        break;
+    case OokjorEngine::EBtSearchingSDP:
 
+        break;
+    case OokjorEngine::EBtConnectingRFCOMM:
+
+        break;
+    case OokjorEngine::EBtConnectionActive:
+
+        break;
+    case OokjorEngine::EBtDisconnected:
+
+        break;
+    default:
+        ui->statusBar->showMessage("ERROR: UNKNOWN ENGINE STATE");
+        break;
+    }
 }

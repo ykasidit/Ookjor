@@ -28,16 +28,32 @@
 #include <QObject>
 
 
+
 class OokjorEngine : public QObject
 {
     Q_OBJECT
 
     public:
-    OokjorEngine();
+    OokjorEngine(QWidget* aParentWindow);
     ~OokjorEngine();
 
+    enum TOokjorBTEngineState
+    {
+        EBtIdle,
+        EBtSearching,
+        EBtSelectingPhoneToSDP,
+        EBtSearchingSDP,
+        EBtConnectingRFCOMM,
+        EBtConnectionActive,
+        EBtDisconnected
+    };
+
     signals:
-    void SearchCompleteSignal(int res);
+    void EngineStateChangeSignal(int aState);
+    void EngineStatusMessageSignal(QString str);
+
+    public slots:
+    void EngineStateChangeSlot(int aState);
 
     public:
     ///////////search        
@@ -46,14 +62,17 @@ class OokjorEngine : public QObject
             public:
             QString iName;
             uint8_t iAddr[6];
+            QString iAddrStr;
         };
+
         class CSearchThread : public QThread
         {
          public:
              CSearchThread(OokjorEngine &aFather):iFather(aFather){}
              void run();
              OokjorEngine &iFather;
-        };
+        };        
+
         friend class CSearchThread;
 
         bool StartSearch();
@@ -72,6 +91,9 @@ private:
     QMutex iMutex;
     QList<TBtDevInfo> iDevList;
     //////////////////////////////
+    int iSelectedIndex;
+
+    QWidget* iParentWindow;
 
 };
 

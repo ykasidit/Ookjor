@@ -41,8 +41,8 @@ public:
 
 
  public slots:    
-    void SearchCompleteSlot(int res);
-
+ void EngineStateChangeSlot(int aState);
+ void EngineStatusMessageSlot(QString str);
 
 private:
     Ui::OokjorWindow *ui;
@@ -51,6 +51,7 @@ private:
      QGraphicsScene iScene;     
      QGraphicsPixmapItem iPixmapItem;
      QPixmap iPixmap;
+
 
 private slots:
     void on_pushButton_clicked();
