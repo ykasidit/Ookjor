@@ -1,0 +1,44 @@
+/*
+    Copyright (C) 2009 Kasidit Yusuf.
+
+    This file is part of Ookjor.
+
+    Ookjor is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Ookjor is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Ookjor.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
+#include "Ookjor.hrh"
+#include <appinfo.rh>
+#include <Ookjor.rsg>
+#include <uikon.rh>
+
+UID2 KUidAppRegistrationResourceFile
+UID3 0xA000EC71
+
+RESOURCE APP_REGISTRATION_INFO
+	{
+	app_file="Ookjor";
+	localisable_resource_file =  "\\resource\\apps\\Ookjor";
+	localisable_resource_id = R_LOCALISABLE_APP_INFO;
+
+	embeddability=KAppNotEmbeddable;
+	newfile=KAppDoesNotSupportNewFile;
+
+	opaque_data = r_startup_detect;
+	}
+
+RESOURCE NUMBER_INT8 r_startup_detect
+{
+ 	value = 1;
+}

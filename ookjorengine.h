@@ -43,6 +43,7 @@ class OokjorEngine : public QObject
         EBtSearching,
         EBtSelectingPhoneToSDP,
         EBtSearchingSDP,
+        EBtSearchingSDPDone,
         EBtConnectingRFCOMM,
         EBtConnectionActive,
         EBtDisconnected
@@ -65,16 +66,30 @@ class OokjorEngine : public QObject
             QString iAddrStr;
         };
 
-        class CSearchThread : public QThread
+        class CBtEngineThread : public QThread
+        {
+            public:
+            CBtEngineThread(OokjorEngine &aFather):iFather(aFather){}
+            OokjorEngine &iFather;
+        };
+
+        class CSearchThread : public CBtEngineThread
         {
          public:
-             CSearchThread(OokjorEngine &aFather):iFather(aFather){}
-             void run();
-             OokjorEngine &iFather;
+             CSearchThread(OokjorEngine &aFather):CBtEngineThread(aFather){}
+             void run();             
         };        
 
-        friend class CSearchThread;
+        class CSDPThread : public CBtEngineThread
+        {
+         public:
+             CSDPThread(OokjorEngine &aFather):CBtEngineThread(aFather){}
+             void run();                          
+        };
 
+
+        friend class CSearchThread;
+        friend class CSDPThread;
         bool StartSearch();
         void CancelSearch();
         void GetDevListClone(QList<TBtDevInfo>& aDevList);
@@ -90,7 +105,9 @@ private:
     QThread* iThread;
     QMutex iMutex;
     QList<TBtDevInfo> iDevList;
+    int iRFCOMMChannel;
     //////////////////////////////
+
     int iSelectedIndex;
 
     QWidget* iParentWindow;

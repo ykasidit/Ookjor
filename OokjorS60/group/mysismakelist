@@ -1,0 +1,124 @@
+#! /bin/bash
+
+#### simple scipt to compile symbian c++ apps - by Kasidit Yusuf - www.ClearEvo.com
+#This software is provided 'as-is', without any express or implied warranty. In no event will 
+#the authors be held liable for any damages arising from the use of this software.
+######################
+
+############### BEGIN: Build Config
+
+#####sdk selector
+#comment out the s60 ed which you are not using
+
+#s60ed="2nd"
+s60ed="5th"
+#s60ed="3rd"
+
+#################
+
+if [ "$s60ed" = "2nd" ]; then  
+   ##### S60 2nd
+    echo "//////S60 2nd Build start"
+	sdk="s60_26cw" #edit this to your sdk, skip this if you're not building for 2nd ed also
+	PLATFORM="armi"
+	TARGET="urel"
+	###########
+else
+  		if [ "$s60ed" = "3rd" ]; then 
+		sdk="s60_31" #edit this to your sdk
+		else
+		sdk="s60_50"		
+		fi	
+	PLATFORM="gcce"
+	TARGET="urel"
+	###########   
+fi 				
+
+if [ "$s60ed" = "3rd" ]; then 
+###s60 3rd ed config
+unsignedsisname="OokjorS603rd.sis"
+signedsisname="OokjorS603rd.sisx"
+pkgfile3rdEd="OokjorS603rd.pkg"
+cerfile="mycert.cer"
+keyfile="mykey.key"
+signingpassword="0000"
+###
+else
+###s60 5th ed config
+unsignedsisname="OokjorS605th.sis"
+signedsisname="OokjorS605th.sisx"
+pkgfile3rdEd="OokjorS605th.pkg"
+cerfile="mycert.cer"
+keyfile="mykey.key"
+signingpassword="0000"
+###
+fi
+
+###s60 2nd ed config
+pkgfile2ndEd="OokjorS602nd.pkg" #skip this if you're not building for 2nd ed also
+###
+
+############## END: Build Config
+
+export PATH=${HOME}/gnupoc:${PATH}
+export EPOCROOT=${HOME}/symbian-sdks/$sdk/
+export PLATFORM=${PLATFORM}
+export TARGET=${TARGET}
+
+START_TIME=`date +%s`
+
+echo "///////using SDK: $sdk"
+
+case $1 in
+all)
+    echo "//BEGIN build////////////////////////////////////////"	
+	bldmake bldfiles
+	abld build $PLATFORM $TARGET	
+	echo "//END build////////////////////////////////////////"
+	
+	echo "//BEGIN makesis////////////////////////////////////////"
+	cd ../sis	
+	
+	if [ "$s60ed" = "2nd" ]; then
+		##### S60 2nd	    
+	    echo "makesis $pkgfil2ndEd"
+	    makesis $pkgfile2ndEd
+		###########
+		
+	else
+	    ##### S60 3rd
+		makesis $pkgfile3rdEd $unsignedsisname
+		###########
+		
+		echo "//SIGNING SIS"
+		echo "signsis -p $unsignedsisname $signedsisname $cerfile $keyfile $signingpassword"
+		signsis -p $unsignedsisname $signedsisname $cerfile $keyfile $signingpassword		
+		///////////
+	fi 	
+	
+	
+		
+	echo "//END makesis////////////////////////////////////////"	   	
+
+END_TIME=`date +%s`
+ELAPSED=`expr $END_TIME - $START_TIME`
+echo ""
+echo "Build finished - Elapsed time: " `date -d 00:00:$ELAPSED +%H:%M:%S`
+;;
+
+clean)
+echo "//BEGIN clean//////////////////////"
+abld clean $PLATFORM $TARGET
+bldmake clean
+echo "//END clean//////////////////////"
+
+END_TIME=`date +%s`
+ELAPSED=`expr $END_TIME - $START_TIME`
+echo ""
+echo "Clean finished - Elapsed time: " `date -d 00:00:$ELAPSED +%H:%M:%S`
+;;
+
+*)
+   echo "invalid command param: just all or clean"
+;;
+esac

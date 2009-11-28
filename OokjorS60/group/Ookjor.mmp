@@ -1,0 +1,132 @@
+/*
+    Copyright (C) 2009 Kasidit Yusuf.
+
+    This file is part of Ookjor.
+
+    Ookjor is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Ookjor is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Ookjor.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+
+#ifdef EKA2
+TARGET			Ookjor.exe
+TARGETTYPE		exe
+UID		  		0x100039CE 0xA000EC71
+VENDORID	  	0
+SECUREID		0xA000EC71
+CAPABILITY 		LocalServices
+#else
+TARGET          Ookjor.app
+TARGETTYPE      app
+targetpath      \system\apps\Ookjor
+UID             0x100039ce 0x2001A3E4
+#endif
+
+
+
+
+SOURCEPATH		..\src
+
+SYSTEMINCLUDE	\epoc32\include
+USERINCLUDE	   ..\inc
+
+
+SOURCE			AboutAppView.cpp
+SOURCE			AboutTextContainer.cpp
+SOURCE			HelpAppView.cpp
+SOURCE			HelpTextContainer.cpp
+SOURCE			Ookjor.cpp
+SOURCE			OokjorApplication.cpp
+SOURCE			OokjorAppUi.cpp
+SOURCE			OokjorAppView.cpp
+SOURCE			OokjorContainer.cpp
+SOURCE			OokjorDocument.cpp
+SOURCE			OokjorSettingsContainer.cpp
+SOURCE			OokjorSettingsView.cpp
+SOURCE			MyRichTextEditor.cpp
+SOURCE			ScrollRichTextContainer.cpp
+SOURCE			SettingsListSettingItemList.cpp
+SOURCE			SettingsListSettings.cpp
+SOURCE 			SkinnedContainer.cpp
+SOURCE 			BtAdvertiser.cpp
+SOURCE 			BtServer.cpp
+
+#ifdef EKA2
+#else
+STATICLIBRARY edll.lib
+#endif
+
+LIBRARY		   euser.lib
+LIBRARY		   apparc.lib
+LIBRARY		   cone.lib
+LIBRARY		   eikcore.lib
+LIBRARY		   avkon.lib
+LIBRARY		   commonengine.lib
+LIBRARY		   efsrv.lib
+LIBRARY		   estor.lib
+LIBRARY		   commdb.lib
+LIBRARY        bafl.lib fbscli.lib egul.lib gdi.lib aknskins.lib eikcoctl.lib eikctl.lib etext.lib apgrfx.lib sysutil.lib ws32.lib etel.lib
+LIBRARY 	   mediaclientaudio.lib
+LIBRARY		   esock.lib bluetooth.lib sdpdatabase.lib btmanclient.lib
+LIBRARY		   centralrepository.lib
+
+//CAknsBasicBackgroundControlContext , MAknsSkinInstance
+LIBRARY   aknskinsrv.lib aknswallpaperutils.lib
+
+#ifdef EKA2
+LIBRARY   aknicon.lib
+#endif
+
+START BITMAP iclmain.mbm
+HEADER
+source c16,1 ..\main.bmp ..\main_mask.bmp
+END
+
+EPOCSTACKSIZE 0x8000
+
+#ifdef EKA2
+SOURCEPATH		..\data
+
+START RESOURCE Ookjor.rss
+	HEADER
+	TARGET Ookjor
+	TARGETPATH resource\apps
+	LANG 01
+END
+
+START RESOURCE	Ookjor_reg.rss
+TARGET Ookjor_reg
+TARGETPATH 	  \private\10003a3f\apps
+END //RESOURCE
+
+#else
+RESOURCE        ..\data\Ookjor.rss
+RESOURCE        ..\data\Ookjor_caption.rss
+#endif
+
+#ifdef EKA2
+LANG EN
+
+#ifdef ENABLE_ABIV2_MODE
+DEBUGGABLE
+#endif
+// End of File
+
+
+#endif
+
+#ifndef EKA2
+//aif for s60 2nd ed
+AIF Ookjor.aif ..\aif Ookjoraif.rss c12 context_pane_icon.bmp context_pane_icon_mask.bmp list_icon.bmp list_icon_mask.bmp
+#endif
+

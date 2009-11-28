@@ -83,6 +83,9 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
     case OokjorEngine::EBtSearchingSDP:
 
         break;
+    case OokjorEngine::EBtSearchingSDPDone:
+
+        break;
     case OokjorEngine::EBtConnectingRFCOMM:
 
         break;
@@ -93,7 +96,7 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
 
         break;
     default:
-        ui->statusBar->showMessage("ERROR: UNKNOWN ENGINE STATE");
+        ui->statusBar->showMessage("WARNING: UNKNOWN ENGINE STATE");
         break;
     }
 }

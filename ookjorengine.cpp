@@ -134,6 +134,100 @@ void OokjorEngine::CSearchThread::run()
     ////////////////////////////
 }
 
+void OokjorEngine::CSDPThread::run()
+{
+    emit iFather.EngineStateChangeSignal(EBtSearchingSDP);
+    emit iFather.EngineStatusMessageSignal("Searching device...");
+    int channel = -1;
+    iFather.iRFCOMMChannel = channel; //set to invalid
+
+            //adjusted from http://people.csail.mit.edu/albert/bluez-intro/x604.html
+
+            // Ookjor mobile service id 0x2BC2B92E,0x399211DC, 0x83140800, 0x200C9A38
+            uint8_t svc_uuid_int[] = {0x2B,0xC2,0xB9,0x2E,0x39,0x92,0x11,0xDC,0x83,0x14,0x08,0x00,0x20,0x0C,0x9A,0x38};
+
+            uuid_t svc_uuid;
+            int err;
+            bdaddr_t target;
+
+            CopyBDADDR(iFather.iDevList[iFather.iSelectedIndex].iAddr, target.b);
+
+
+            sdp_list_t *response_list = NULL, *search_list, *attrid_list;
+            sdp_session_t *session = 0;
+
+            emit iFather.EngineStatusMessageSignal("Connect to SDP on remote");
+            // connect to the SDP server running on the remote machine
+            session = sdp_connect( BDADDR_ANY, &target, SDP_RETRY_IF_BUSY );
+
+            // specify the UUID of the application we're searching for
+            sdp_uuid128_create( &svc_uuid, &svc_uuid_int );
+            search_list = sdp_list_append( NULL, &svc_uuid );
+
+            // specify that we want a list of all the matching applications' attributes
+            uint32_t range = 0x0000ffff;
+            attrid_list = sdp_list_append( NULL, &range );
+
+            // get a list of service records that have UUID 0xabcd
+            emit iFather.EngineStatusMessageSignal("get a list of service records that have UUID 0xabcd");
+            err = sdp_service_search_attr_req( session, search_list, \
+                    SDP_ATTR_REQ_RANGE, attrid_list, &response_list);
+
+            //parse response
+            emit iFather.EngineStatusMessageSignal("Parsing response");
+            sdp_list_t *r = response_list;
+
+    // go through each of the service records
+    for (; r; r = r->next ) {
+        sdp_record_t *rec = (sdp_record_t*) r->data;
+        sdp_list_t *proto_list;
+
+        // get a list of the protocol sequences
+        if( sdp_get_access_protos( rec, &proto_list ) == 0 ) {
+        sdp_list_t *p = proto_list;
+
+        // go through each protocol sequence
+        for( ; p ; p = p->next ) {
+            sdp_list_t *pds = (sdp_list_t*)p->data;
+
+            // go through each protocol list of the protocol sequence
+            for( ; pds ; pds = pds->next ) {
+
+                // check the protocol attributes
+                sdp_data_t *d = (sdp_data_t*)pds->data;
+                int proto = 0;
+                for( ; d; d = d->next ) {
+                    switch( d->dtd ) {
+                        case SDP_UUID16:
+                        case SDP_UUID32:
+                        case SDP_UUID128:
+                            proto = sdp_uuid_to_proto( &d->val.uuid );
+                            break;
+                        case SDP_UINT8:
+                            if( proto == RFCOMM_UUID ) {
+                                qDebug("rfcomm channel: %d\n",d->val.int8);
+                                channel = d->val.int8;                                
+                            }
+                            break;
+                    }
+                }
+            }
+            sdp_list_free( (sdp_list_t*)p->data, 0 );
+        }
+        sdp_list_free( proto_list, 0 );
+
+        }
+
+        qDebug("found service record 0x%x\n", rec->handle);
+        sdp_record_free( rec );
+    }
+
+    sdp_close(session);
+
+    iFather.iRFCOMMChannel = channel;
+    emit iFather.EngineStateChangeSignal(EBtSearchingSDPDone);
+}
+
 bool OokjorEngine::StartSearch()
 {
     if(iThread && iThread->isRunning())
@@ -192,7 +286,23 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
                     str = iDevList[aSelIndex].iName;
                     str += " selected, preparing to search for service...";
                     emit EngineStatusMessageSignal(str);
+
+
+                    //////////////// start sdp search thread
+                    if(iThread && iThread->isRunning())
+                     {
+                    iThread->wait();
+                     }
+
+                    //if comes here measn thread has finished
+                    delete iThread;
+
+                    iThread = new CSDPThread(*this);
+                    iThread->start();
                     emit EngineStateChangeSignal(EBtSearchingSDP);
+                    ////////////////
+
+
                 }
                 else //closed/cancelled
                 {                    
@@ -204,96 +314,30 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
         break;
     case OokjorEngine::EBtSearchingSDP:
     {
-        //this normally wont take so long so no need for a new thread yet - maybe i'll make a new thread for it in the future
-
-            //adjusted from http://people.csail.mit.edu/albert/bluez-intro/x604.html
-
-            uint8_t svc_uuid_int[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0xab, 0xcd };
-            uuid_t svc_uuid;
-            int err;
-            bdaddr_t target;
-
-            CopyBDADDR(iDevList[iSelectedIndex].iAddr, target.b);
 
 
-            sdp_list_t *response_list = NULL, *search_list, *attrid_list;
-            sdp_session_t *session = 0;
-
-            emit EngineStatusMessageSignal("Connect to SDP on remote");
-            // connect to the SDP server running on the remote machine
-            session = sdp_connect( BDADDR_ANY, &target, SDP_RETRY_IF_BUSY );
-
-            // specify the UUID of the application we're searching for
-            sdp_uuid128_create( &svc_uuid, &svc_uuid_int );
-            search_list = sdp_list_append( NULL, &svc_uuid );
-
-            // specify that we want a list of all the matching applications' attributes
-            uint32_t range = 0x0000ffff;
-            attrid_list = sdp_list_append( NULL, &range );
-
-            // get a list of service records that have UUID 0xabcd
-            emit EngineStatusMessageSignal("get a list of service records that have UUID 0xabcd");
-            err = sdp_service_search_attr_req( session, search_list, \
-                    SDP_ATTR_REQ_RANGE, attrid_list, &response_list);
-
-            //parse response
-            emit EngineStatusMessageSignal("Parsing response");
-            sdp_list_t *r = response_list;
-
-    // go through each of the service records
-    for (; r; r = r->next ) {
-        sdp_record_t *rec = (sdp_record_t*) r->data;
-        sdp_list_t *proto_list;
-
-        // get a list of the protocol sequences
-        if( sdp_get_access_protos( rec, &proto_list ) == 0 ) {
-        sdp_list_t *p = proto_list;
-
-        // go through each protocol sequence
-        for( ; p ; p = p->next ) {
-            sdp_list_t *pds = (sdp_list_t*)p->data;
-
-            // go through each protocol list of the protocol sequence
-            for( ; pds ; pds = pds->next ) {
-
-                // check the protocol attributes
-                sdp_data_t *d = (sdp_data_t*)pds->data;
-                int proto = 0;
-                for( ; d; d = d->next ) {
-                    switch( d->dtd ) {
-                        case SDP_UUID16:
-                        case SDP_UUID32:
-                        case SDP_UUID128:
-                            proto = sdp_uuid_to_proto( &d->val.uuid );
-                            break;
-                        case SDP_UINT8:
-                            if( proto == RFCOMM_UUID ) {
-                                qDebug("rfcomm channel: %d\n",d->val.int8);
-                            }
-                            break;
-                    }
-                }
-            }
-            sdp_list_free( (sdp_list_t*)p->data, 0 );
-        }
-        sdp_list_free( proto_list, 0 );
-
-        }
-
-        qDebug("found service record 0x%x\n", rec->handle);
-        sdp_record_free( rec );
-    }
-
-    sdp_close(session);
-
-    emit EngineStatusMessageSignal("SDP finished");
-
-    emit EngineStateChangeSignal(EBtIdle);
 
 
     }
         break;
+
+    case OokjorEngine::EBtSearchingSDPDone:
+    {
+            if(iRFCOMMChannel<0)
+            {
+                emit EngineStatusMessageSignal("ch Not found");
+                emit EngineStateChangeSignal(EBtIdle);
+            }
+            else
+            {
+                emit EngineStatusMessageSignal("ch found");
+                //connect RFCOMM
+            }
+    }
+    break;
+
+
+
     case OokjorEngine::EBtConnectingRFCOMM:
 
         break;
