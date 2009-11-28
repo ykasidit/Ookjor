@@ -36,6 +36,8 @@
 
 
 
+
+
 OokjorEngine::OokjorEngine(QWidget* aParentWindow)
 {
 
@@ -228,6 +230,38 @@ void OokjorEngine::CSDPThread::run()
     emit iFather.EngineStateChangeSignal(EBtSearchingSDPDone);
 }
 
+
+//adapted from http://people.csail.mit.edu/albert/bluez-intro/x502.html
+void OokjorEngine::CRFCOMMThread::run()
+{
+    memset(&addr,0,sizeof(addr));
+    CopyBDADDR(iFather.iDevList[iFather.iSelectedIndex].iAddr, (uint8_t*) &(addr.rc_bdaddr));
+
+    //zeromemory()
+
+    // allocate a socket
+    s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+
+    // set the connection parameters (who to connect to)
+    addr.rc_family = AF_BLUETOOTH;
+    addr.rc_channel = (uint8_t) 1;
+    //str2ba( dest, &addr.rc_bdaddr ); already copied addr above
+
+    // connect to server
+    socklen_t addrlen = sizeof(addr);
+    status = ::connect(s, (__const struct sockaddr *)&addr,addrlen );
+
+    // send a message
+    if( status == 0 ) {
+        status = write(s, "hello!", 6);
+    }
+
+    if( status < 0 ) perror("uh oh");
+
+    close(s);
+
+}
+
 bool OokjorEngine::StartSearch()
 {
     if(iThread && iThread->isRunning())
@@ -323,7 +357,7 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
 
     case OokjorEngine::EBtSearchingSDPDone:
     {
-            if(iRFCOMMChannel<0)
+            if(iRFCOMMChannel<0) //not found
             {
                 emit EngineStatusMessageSignal("ch Not found");
                 emit EngineStateChangeSignal(EBtIdle);
@@ -331,7 +365,8 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
             else
             {
                 emit EngineStatusMessageSignal("ch found");
-                //connect RFCOMM
+
+                //start connect RFCOMM thread
             }
     }
     break;

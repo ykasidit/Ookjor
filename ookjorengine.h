@@ -27,6 +27,12 @@
 #include <QMutex>
 #include <QObject>
 
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <bluetooth/bluetooth.h>
+#include <bluetooth/rfcomm.h>
+
 
 
 class OokjorEngine : public QObject
@@ -87,6 +93,16 @@ class OokjorEngine : public QObject
              void run();                          
         };
 
+        class CRFCOMMThread : public CBtEngineThread
+        {
+         public:
+             CRFCOMMThread(OokjorEngine &aFather):CBtEngineThread(aFather){}
+             void run();
+
+             struct sockaddr_rc addr;
+             int s, status;
+        };
+
 
         friend class CSearchThread;
         friend class CSDPThread;
@@ -105,7 +121,7 @@ private:
     QThread* iThread;
     QMutex iMutex;
     QList<TBtDevInfo> iDevList;
-    int iRFCOMMChannel;
+    int iRFCOMMChannel;    
     //////////////////////////////
 
     int iSelectedIndex;
