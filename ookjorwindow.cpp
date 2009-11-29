@@ -39,7 +39,7 @@ OokjorWindow::OokjorWindow(QWidget *parent)
     /////////////
 
    iPixmapItem.setPixmap(iPixmap);
-   iScene.addItem(&iPixmapItem);   
+   iScene.addItem(&iPixmapItem);      
 
     ui->graphicsView->setScene(&iScene);
 }
@@ -51,6 +51,9 @@ if(loadsuccess)
 {
         EngineStatusMessageSlot("img load ok");
         iPixmapItem.setPixmap(iPixmap);
+        iScene.setSceneRect(iPixmapItem.boundingRect());
+        //ui->graphicsView->update();
+
     }
     else
         EngineStatusMessageSlot("img load failed");

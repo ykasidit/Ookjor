@@ -6,12 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>344</width>
-    <height>294</height>
+    <width>392</width>
+    <height>196</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Please Select Phone</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
@@ -28,7 +31,7 @@
        <property name="font">
         <font>
          <family>Monospace</family>
-         <pointsize>12</pointsize>
+         <pointsize>10</pointsize>
          <weight>75</weight>
          <bold>true</bold>
         </font>
