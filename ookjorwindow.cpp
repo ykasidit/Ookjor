@@ -32,7 +32,7 @@ OokjorWindow::OokjorWindow(QWidget *parent)
 
     QObject::connect(iCOokjorEngine, SIGNAL(EngineStateChangeSignal(int)),this, SLOT (EngineStateChangeSlot(int)));
     QObject::connect(iCOokjorEngine, SIGNAL(EngineStatusMessageSignal(QString)),this, SLOT (EngineStatusMessageSlot(QString)));
-
+    QObject::connect(iCOokjorEngine, SIGNAL(GotNewJpgSignal(void)),this, SLOT (GotNewJpgSlot(void)));
 
     //test load pic
     iPixmap.load("gnu.jpg");
@@ -43,6 +43,22 @@ OokjorWindow::OokjorWindow(QWidget *parent)
 
     ui->graphicsView->setScene(&iScene);
 }
+
+void OokjorWindow::GotNewJpgSlot()
+{
+bool loadsuccess = iPixmap.loadFromData(iCOokjorEngine->iNewJpgBuffer,"JPG");
+if(loadsuccess)
+{
+        EngineStatusMessageSlot("img load ok");
+        iPixmapItem.setPixmap(iPixmap);
+    }
+    else
+        EngineStatusMessageSlot("img load failed");
+
+
+}
+
+
 
 OokjorWindow::~OokjorWindow()
 {

@@ -64,7 +64,6 @@ protected:
 	RSocketServ										iSocketServer;
 	RSocket											iListeningSocket;
 	RSocket											iAcceptedSocket;
-	TSockXfrLength									iSentLen;
 
 	TBuf<32> iSName;
 	TBuf<32> iSDesc;

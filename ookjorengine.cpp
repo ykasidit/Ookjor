@@ -34,8 +34,9 @@
 #include <bluetooth/sdp.h>
 #include <bluetooth/sdp_lib.h>
 
+#include <errno.h> //errno global var that holds the error cause
 
-
+const int KMaxInBufferLen = 1024*1024*3;
 
 
 OokjorEngine::OokjorEngine(QWidget* aParentWindow)
@@ -230,14 +231,36 @@ void OokjorEngine::CSDPThread::run()
     emit iFather.EngineStateChangeSignal(EBtSearchingSDPDone);
 }
 
+void OokjorEngine::OnNewJpgData(QByteArray& ba)
+{
+    iMutex.lock();
+    iNewJpgBuffer = ba;
+    iMutex.unlock();    
+
+    emit GotNewJpgSignal();
+}
 
 //adapted from http://people.csail.mit.edu/albert/bluez-intro/x502.html
 void OokjorEngine::CRFCOMMThread::run()
 {
+    const int KReadBuffSize = 2048;
+    uint8_t* buf = (uint8_t*) malloc(KReadBuffSize);
+    QByteArray jpgbuff;
+    QByteArray qKJpgHeader,qKJpgFooter;
+
+    //http://en.wikipedia.org/wiki/JPEG
+    uint8_t KJpgHeader[] = {0xFF,0xD8};
+    qKJpgHeader.append((const char*)KJpgHeader,2);
+    uint8_t KJpgFooter[] = {0xFF,0xD9};
+    qKJpgFooter.append((const char*)KJpgFooter,2);
+
     memset(&addr,0,sizeof(addr));
     CopyBDADDR(iFather.iDevList[iFather.iSelectedIndex].iAddr, (uint8_t*) &(addr.rc_bdaddr));
 
     //zeromemory()
+
+    emit iFather.EngineStatusMessageSignal("allocating socket");
+    emit iFather.EngineStateChangeSignal(EBtConnectingRFCOMM);
 
     // allocate a socket
     s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
@@ -249,16 +272,96 @@ void OokjorEngine::CRFCOMMThread::run()
 
     // connect to server
     socklen_t addrlen = sizeof(addr);
+
+    emit iFather.EngineStatusMessageSignal("Connecting to Bluetooth device");
+    emit iFather.EngineStateChangeSignal(EBtConnectingRFCOMM);
+
     status = ::connect(s, (__const struct sockaddr *)&addr,addrlen );
 
-    // send a message
+    //Read
     if( status == 0 ) {
-        status = write(s, "hello!", 6);
-    }
 
-    if( status < 0 ) perror("uh oh");
+    emit iFather.EngineStatusMessageSignal("Connected... Reading...");
+    emit iFather.EngineStateChangeSignal(EBtConnectionActive);
+
+
+        int bytes_read;
+        uint32_t count=1;
+        uint32_t totalb=0;
+        char progress;
+
+        int jpgstartindex,jpgendindex;
+
+
+        while(true)
+        {
+            bytes_read = ::read(s, buf, KReadBuffSize);
+            if( bytes_read > 0 )
+            {
+                QString str;
+                switch(count%4)
+                {
+                case 0: progress = '/';break;
+                case 1: progress = '-';break;
+                case 2: progress = '\\';break;
+                case 3: progress = '|';break;
+                }
+                totalb += bytes_read;
+
+                if(jpgbuff.length() > KMaxInBufferLen)
+                    jpgbuff.clear();
+
+                jpgbuff.append((const char*)buf,bytes_read);
+
+                //find and report all jpgs found
+
+                while(true)
+                {
+                    jpgstartindex = jpgbuff.indexOf(qKJpgHeader);
+                    jpgendindex = jpgbuff.indexOf(qKJpgFooter);
+
+                    if(jpgstartindex>=0 && jpgendindex > jpgstartindex)
+                    {
+                        QByteArray ajpg = jpgbuff.mid(jpgstartindex,jpgendindex-jpgstartindex);
+                        iFather.OnNewJpgData(ajpg);
+                        jpgbuff.remove(0,jpgendindex+1);
+                    }
+                    else
+                        break;
+                }
+
+                //////////
+
+
+
+
+            }
+            else
+            {
+                //qDebug("readerr %d bytes: %d\n", bytes_read, errno);
+                emit iFather.EngineStatusMessageSignal("Disconnected");
+                emit iFather.EngineStateChangeSignal(EBtDisconnected);
+                break;
+            }
+            count++;
+            if(count > 10000)
+                count = 0;
+        }
+        
+
+
+    }
+    else
+    if( status < 0 )
+        {
+            perror("uh oh");
+            emit iFather.EngineStatusMessageSignal("Connect Failed");            
+        }
+
+    emit iFather.EngineStateChangeSignal(EBtIdle);
 
     close(s);
+    free(buf);
 
 }
 
@@ -367,6 +470,19 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
                 emit EngineStatusMessageSignal("ch found");
 
                 //start connect RFCOMM thread
+                //////////////
+                if(iThread && iThread->isRunning())
+                 {
+                iThread->wait();
+                 }
+
+                //if comes here measn thread has finished
+                delete iThread;
+
+                iThread = new CRFCOMMThread(*this);
+                iThread->start();                
+                ////////////////
+
             }
     }
     break;

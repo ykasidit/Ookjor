@@ -132,6 +132,8 @@ RESOURCE STATUS_PANE_APP_MODEL r_navigationpane_status_pane
 				}
 			};
 }
+
+
 RESOURCE NAVI_DECORATOR r_navigationpane_navi_tabgroup
 {
 	type = ENaviDecoratorControlTabGroup;

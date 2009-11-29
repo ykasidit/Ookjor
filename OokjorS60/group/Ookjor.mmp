@@ -50,6 +50,7 @@ SOURCE			OokjorApplication.cpp
 SOURCE			OokjorAppUi.cpp
 SOURCE			OokjorAppView.cpp
 SOURCE			OokjorContainer.cpp
+SOURCE			IncallertContainer.cpp
 SOURCE			OokjorDocument.cpp
 SOURCE			OokjorSettingsContainer.cpp
 SOURCE			OokjorSettingsView.cpp
@@ -78,7 +79,7 @@ LIBRARY		   commdb.lib
 LIBRARY        bafl.lib fbscli.lib egul.lib gdi.lib aknskins.lib eikcoctl.lib eikctl.lib etext.lib apgrfx.lib sysutil.lib ws32.lib etel.lib
 LIBRARY 	   mediaclientaudio.lib
 LIBRARY		   esock.lib bluetooth.lib sdpdatabase.lib btmanclient.lib
-LIBRARY		   centralrepository.lib
+LIBRARY		   centralrepository.lib imageconversion.lib
 
 //CAknsBasicBackgroundControlContext , MAknsSkinInstance
 LIBRARY   aknskinsrv.lib aknswallpaperutils.lib

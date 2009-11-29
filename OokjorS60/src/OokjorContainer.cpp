@@ -43,9 +43,9 @@ void COokjorContainer::ConstructL(const TRect& aRect)
     {
 	  LoadBitMap();
 	  CSkinnedContainer::ConstructL();
-   // CreateWindowL();
-	//SetRect(aRect);
-	//ActivateL();
+    CreateWindowL();
+	SetRect(aRect);
+	ActivateL();
     }
 
 TInt COokjorContainer::CountComponentControls() const

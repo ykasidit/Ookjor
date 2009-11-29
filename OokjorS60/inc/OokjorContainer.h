@@ -37,7 +37,6 @@ public:
 
     virtual void ConstructL(const TRect& aRect);
 
-
 	// from CoeControl
      TInt CountComponentControls() const;
      CCoeControl* ComponentControl(TInt aIndex) const;
@@ -48,8 +47,8 @@ public:
 	void AddLog(const TDesC& aLog);
 
     COokjorAppUi *appui;
-        CFbsBitmap* iBitmap;
-            void LoadBitMap();
+	CFbsBitmap* iBitmap;
+	void LoadBitMap();
 
     TBuf8<6> iSendBuf;
     };

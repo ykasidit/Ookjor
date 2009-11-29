@@ -23,6 +23,8 @@
 #include <aknview.h>
 
 #include "BtServer.h"
+#include <w32std.h>
+#include <imageconversion.h>
 
 class COokjorAppUi;
 class COokjorContainer;
@@ -57,13 +59,20 @@ public:
 
 	protected:
 	COokjorAppUi *appui;
-	COokjorContainer *iContainer;
+	CCoeControl *iContainer;
 
 	CBtServer* iBtServer;
 
 	COokjorAppView(COokjorAppUi *ui);
 	void ConstructL();
 	TUid iId;
+
+	TBool TakeScreenshot();
+
+	CWsScreenDevice* iScreenDevice;
+	CFbsBitmap* iSSBitmap;
+	CImageEncoder* iImageEncoder;
+	HBufC8* iJPGSSBuffer;
     };
 
 

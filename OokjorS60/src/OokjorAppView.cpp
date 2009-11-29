@@ -29,7 +29,8 @@
 
 #include "OokjorApplication.h"
 #include "Ookjor.hrh"
-#include "OokjorContainer.h"
+//#include "OokjorContainer.h"
+#include "IncallertContainer.h"
 
 #include "OokjorAppView.h"
 
@@ -46,6 +47,9 @@ COokjorAppView::COokjorAppView(COokjorAppUi *ui)
 COokjorAppView::~COokjorAppView()
     {
 		delete iContainer; //just in case
+		delete iSSBitmap;
+		delete iImageEncoder;
+		delete iJPGSSBuffer;
     }
 
 
@@ -77,6 +81,14 @@ void COokjorAppView::ConstructL()
     {
 	    BaseConstructL(R_STATUS_VIEW);
 
+	    iScreenDevice = CCoeEnv::Static()->ScreenDevice();
+	    iSSBitmap = new (ELeave) CFbsBitmap;
+
+	    iSSBitmap->Create( iScreenDevice->SizeInPixels(),iScreenDevice->DisplayMode() );
+
+	    iJPGSSBuffer = NULL;
+	    iImageEncoder = NULL;
+
 	    _LIT(KBTServiceName, "Ookjor");
 	    _LIT(KBTServiceDesc, "Ookjor");
 
@@ -90,6 +102,32 @@ void COokjorAppView::ConstructL()
 
     }
 
+TBool COokjorAppView::TakeScreenshot()
+	{
+		if(iScreenDevice->CopyScreenToBitmap( iSSBitmap ) == KErrNone)
+		{
+
+			delete iImageEncoder;
+			delete iJPGSSBuffer;
+			iImageEncoder = NULL;
+			iJPGSSBuffer = NULL;
+
+			iImageEncoder = CImageEncoder::DataNewL(iJPGSSBuffer,CImageEncoder::EOptionAlwaysThread,KImageTypeJPGUid);
+			TRequestStatus status;
+			iImageEncoder->Convert(&status,*iSSBitmap);
+			User::WaitForRequest(status);
+			if(status.Int()==KErrNone)
+				return ETrue;
+			else
+				return EFalse;
+		}
+		else
+		{
+			return EFalse;
+		}
+		return EFalse;
+	}
+
 
 void COokjorAppView::HandleCommandL(TInt aCommand)
     {
@@ -101,7 +139,7 @@ void COokjorAppView::DoActivateL(const TVwsViewId& /*aPrevViewId*/,
                                     const TDesC8& /*aCustomMessage*/)
     {
 	    ASSERT(iContainer == NULL);
-		iContainer = COokjorContainer::NewL(ClientRect());
+		iContainer = CIncallertContainer::NewL(ClientRect());
 		AppUi()->AddToStackL(iContainer);
     }
 
@@ -118,9 +156,58 @@ void COokjorAppView::DoDeactivate()
 
 void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, const TDesC& aDesc)
 {
-	CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
-		        	informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
-		        	informationNote->ExecuteLD(aDesc);
+
+	switch(aState)
+	{
+		case CBtServer::EIdle:
+		{
+			CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
+				informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
+				informationNote->ExecuteLD(aDesc);
+
+		}
+			break;
+		case CBtServer::EWaitingComputer:
+		{
+			CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
+				informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
+				informationNote->ExecuteLD(aDesc);
+
+		}
+			break;
+
+		case CBtServer::ESendingData:
+		{
+
+
+		}
+		break;
+
+		/////////////////////
+		case CBtServer::EConnected:
+		{
+			CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
+				informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
+				informationNote->ExecuteLD(aDesc);
+
+		}//same handling as EDataSent so DONT BREAK - follow through
+		case CBtServer::EDataSent:
+		{
+			//update frame count
+
+			//take ss, wait for callback, send in callback
+			if(err == KErrNone && TakeScreenshot())
+			{
+				iBtServer->SendL(*iJPGSSBuffer);
+			}
+			else
+				iBtServer->StopServer();
+		}
+		break;
+		/////////////////////
+
+	}
+
 
 }
 

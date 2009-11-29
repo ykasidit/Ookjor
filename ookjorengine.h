@@ -32,6 +32,7 @@
 #include <sys/socket.h>
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/rfcomm.h>
+#include <QPixmap>
 
 
 
@@ -58,6 +59,7 @@ class OokjorEngine : public QObject
     signals:
     void EngineStateChangeSignal(int aState);
     void EngineStatusMessageSignal(QString str);
+    void GotNewJpgSignal();
 
     public slots:
     void EngineStateChangeSlot(int aState);
@@ -115,6 +117,8 @@ class OokjorEngine : public QObject
         static void CopyBDADDR(uint8_t* src,uint8_t* dst);
     /////////
 
+        void OnNewJpgData(QByteArray& ba);
+        QByteArray iNewJpgBuffer;
 private:
 
     ////////////////////////for shared stuff between current and result thread like iDevlist
@@ -122,6 +126,7 @@ private:
     QMutex iMutex;
     QList<TBtDevInfo> iDevList;
     int iRFCOMMChannel;    
+
     //////////////////////////////
 
     int iSelectedIndex;

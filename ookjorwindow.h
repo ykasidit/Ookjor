@@ -43,6 +43,7 @@ public:
  public slots:    
  void EngineStateChangeSlot(int aState);
  void EngineStatusMessageSlot(QString str);
+ void GotNewJpgSlot();
 
 private:
     Ui::OokjorWindow *ui;

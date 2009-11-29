@@ -143,8 +143,8 @@ void CBtServer::RunL()
 						StopServer();
 						iBtServerCaller.OnBtServerStateChanged(iState,iStatus.Int(),_L("AcceptFailed"));
 					}
-				break;
 				}
+			break;
 
 			case ESendingData:
 			{
@@ -157,6 +157,7 @@ void CBtServer::RunL()
 					iBtServerCaller.OnBtServerStateChanged(iState,iStatus.Int(),_L("send failed - disconnected"));
 				}
 			}
+			break;
 
 
 			default:
