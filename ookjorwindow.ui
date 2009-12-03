@@ -31,6 +31,13 @@
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
+     <widget class="QLabel" name="label">
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QGraphicsView" name="graphicsView"/>
     </item>
     <item>
@@ -87,17 +94,12 @@
      <height>25</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuHelp">
-    <property name="title">
-     <string>Help</string>
-    </property>
-   </widget>
    <widget class="QMenu" name="menuAbout">
     <property name="title">
      <string>About</string>
     </property>
+    <addaction name="actionAbout_2"/>
    </widget>
-   <addaction name="menuHelp"/>
    <addaction name="menuAbout"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
@@ -109,8 +111,39 @@
    </attribute>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionAbout_2">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>actionAbout_2</sender>
+   <signal>triggered()</signal>
+   <receiver>OokjorWindow</receiver>
+   <slot>OnMenuAbout()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>109</x>
+     <y>48</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>230</x>
+     <y>232</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+ <slots>
+  <slot>OnMenuAbout()</slot>
+  <slot>OnMenuHelp()</slot>
+ </slots>
 </ui>

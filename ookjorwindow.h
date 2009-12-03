@@ -44,6 +44,8 @@ public:
  void EngineStateChangeSlot(int aState);
  void EngineStatusMessageSlot(QString str);
  void GotNewJpgSlot();
+ void OnMenuHelp();
+ void OnMenuAbout();
 
 private:
     Ui::OokjorWindow *ui;

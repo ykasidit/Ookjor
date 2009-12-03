@@ -18,10 +18,15 @@ TEMPLATE = app
 SOURCES += main.cpp \
     ookjorwindow.cpp \
     ookjorengine.cpp \
-    selectphonedialog.cpp
+    selectphonedialog.cpp \
+    aboutookjordialog.cpp
 HEADERS += ookjorwindow.h \
     ookjorengine.h \
-    selectphonedialog.h
+    selectphonedialog.h \
+    aboutookjordialog.h
 FORMS += ookjorwindow.ui \
-    selectphonedialog.ui
+    selectphonedialog.ui \
+    aboutookjordialog.ui
 LIBS += -lbluetooth
+RESOURCES += ookjor_res.qrc
+

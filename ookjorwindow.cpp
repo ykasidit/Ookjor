@@ -19,8 +19,12 @@
 
 #include "ookjorwindow.h"
 #include "ui_ookjorwindow.h"
-
-
+#include <QMessageBox>
+#include "aboutookjordialog.h"
+#include <QGraphicsItemAnimation>
+#include <QTimeLine>
+#include <QGraphicsTextItem>
+#include <QMovie>
 
 OokjorWindow::OokjorWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::OokjorWindow)
@@ -39,9 +43,38 @@ OokjorWindow::OokjorWindow(QWidget *parent)
     /////////////
 
    iPixmapItem.setPixmap(iPixmap);
-   iScene.addItem(&iPixmapItem);      
+   iScene.addItem(&iPixmapItem);
+
+   QMovie* gif = new QMovie(":/images/ajax-loader.gif");
+   ui->label->setMovie(gif);
+   gif->start();
+   ///////////test
+   /*QGraphicsItem *ball = new QGraphicsEllipseItem(0, 0, 20, 20);
+   QGraphicsTextItem *ball = new QGraphicsTextItem ();
+   ball->setHtml("<big><>Press Connect to Mobile</big>");
+
+     QTimeLine *timer = new QTimeLine(5000);
+     timer->setFrameRange(0, 100);
+
+     QGraphicsItemAnimation *animation = new QGraphicsItemAnimation;
+     animation->setItem(ball);
+     animation->setTimeLine(timer);
+
+     for (int i = 0; i < 200; ++i)
+         animation->setPosAt(i / 200.0, QPointF(i, i));
+
+
+     //iScene.setSceneRect(0, 0, 250, 250);
+     iScene.addItem(ball);
+
+
+     timer->start();
+     */
+   ////////
+
 
     ui->graphicsView->setScene(&iScene);
+    //ui->graphicsView->hide();
 }
 
 void OokjorWindow::GotNewJpgSlot()
@@ -49,6 +82,7 @@ void OokjorWindow::GotNewJpgSlot()
 bool loadsuccess = iPixmap.loadFromData(iCOokjorEngine->iNewJpgBuffer,"JPG");
 if(loadsuccess)
 {
+
         EngineStatusMessageSlot("img load ok");
         iPixmapItem.setPixmap(iPixmap);
         iScene.setSceneRect(iPixmapItem.boundingRect());
@@ -90,6 +124,8 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
     case OokjorEngine::EBtIdle:
         ui->pushButton->setText("Connect to Mobile");
         ui->pushButton->setEnabled(true);
+        //ui->textBrowser->show();
+        ui->graphicsView->hide();
         break;
     case OokjorEngine::EBtSearching:
         ui->pushButton->setEnabled(false);
@@ -109,7 +145,8 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
 
         break;
     case OokjorEngine::EBtConnectionActive:
-
+    //ui->textBrowser->hide();
+    ui->graphicsView->show();
         break;
     case OokjorEngine::EBtDisconnected:
 
@@ -118,4 +155,16 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
         ui->statusBar->showMessage("WARNING: UNKNOWN ENGINE STATE");
         break;
     }
+}
+
+void OokjorWindow::OnMenuAbout()
+{
+//QMessageBox::information(this, tr("About"),tr(""));
+      aboutookjordialog w(this);
+      w.exec();
+}
+
+void OokjorWindow::OnMenuHelp()
+{
+//QMessageBox::information(this, tr("Help"),tr("Please visit www.ClearEvo.com for details."));
 }
