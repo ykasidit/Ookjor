@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>OokjorWindow</class>
  <widget class="QMainWindow" name="OokjorWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>388</width>
+    <height>462</height>
+   </rect>
+  </property>
   <property name="sizePolicy">
    <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
     <horstretch>0</horstretch>
@@ -162,7 +170,7 @@
     <item>
      <widget class="QPushButton" name="liveDisconnectButton">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -198,17 +206,12 @@
      </sizepolicy>
     </property>
     <property name="title">
-     <string>About</string>
+     <string>Menu</string>
     </property>
     <addaction name="actionAbout_2"/>
    </widget>
    <addaction name="menuAbout"/>
   </widget>
-  <action name="actionAbout">
-   <property name="text">
-    <string>About</string>
-   </property>
-  </action>
   <action name="actionAbout_2">
    <property name="text">
     <string>About</string>
@@ -220,17 +223,17 @@
  <connections>
   <connection>
    <sender>actionAbout_2</sender>
-   <signal>triggered()</signal>
+   <signal>activated()</signal>
    <receiver>OokjorWindow</receiver>
    <slot>OnMenuAbout()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>-1</x>
-     <y>-1</y>
+     <x>68</x>
+     <y>59</y>
     </hint>
     <hint type="destinationlabel">
-     <x>230</x>
-     <y>232</y>
+     <x>193</x>
+     <y>230</y>
     </hint>
    </hints>
   </connection>

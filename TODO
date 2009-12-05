@@ -1,5 +1,4 @@
-- output all states, log to logfile to analyse crashes
-- fix crash on "connect to sdp..."
+- fix rare crash on "connect to sdp..."
 
 - mobile hide sdp when connected
 - mobile show sdp and restart server/listener after disconnected

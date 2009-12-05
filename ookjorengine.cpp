@@ -285,12 +285,17 @@ void OokjorEngine::CRFCOMMThread::run()
     //Read
     if( status == 0 ) {
 
+        qDebug("wait 2 sec before read to make sure mobile accepted connection and fully opened socket"); //otherwise strange blocking read and mobile nondisconnecting issues are observed
+        sleep(2);
         //no need mutex here because the button to disconnect (that would call close on socket handle iLiveSocketToDisconnect) isn't shown yet
+            iFather.iMutex.lock();
          iFather.iLiveSocketToDisconnect = s;
+         iFather.iMutex.unlock();
 
     emit iFather.EngineStatusMessageSignal("Connected... Reading...");
+    qDebug("presignal state change 0");
     emit iFather.EngineStateChangeSignal(EBtConnectionActive);
-
+    qDebug("postsignal state change 0");
 
         int bytes_read;
         uint32_t count=1;
@@ -302,7 +307,10 @@ void OokjorEngine::CRFCOMMThread::run()
 
         while(true)
         {
+            memset(buf,0,KReadBuffSize);
+            qDebug("Reading...");
             bytes_read = ::read(s, buf, KReadBuffSize);
+            qDebug("Read %d bytes",bytes_read);
             if( bytes_read > 0 )
             {
                 QString str;
@@ -324,6 +332,8 @@ void OokjorEngine::CRFCOMMThread::run()
 
                 while(true)
                 {
+                    qDebug("finding jpg in buffer");
+
                     jpgstartindex = jpgbuff.indexOf(qKJpgHeader);
                     jpgendindex = jpgbuff.indexOf(qKJpgFooter);
 
@@ -332,9 +342,14 @@ void OokjorEngine::CRFCOMMThread::run()
                         QByteArray ajpg = jpgbuff.mid(jpgstartindex,jpgendindex-jpgstartindex);
                         iFather.OnNewJpgData(ajpg);
                         jpgbuff.remove(0,jpgendindex+1);
+                        qDebug("found jpeg");
                     }
                     else
+                    {
+                        qDebug("no more jpeg");
                         break;
+                    }
+
                 }
 
                 //////////
@@ -345,7 +360,7 @@ void OokjorEngine::CRFCOMMThread::run()
             }
             else
             {
-                //qDebug("readerr %d bytes: %d\n", bytes_read, errno);
+                qDebug("readerr %d bytes: %d\n", bytes_read, errno);
                 emit iFather.EngineStatusMessageSignal("Disconnected");
                 emit iFather.EngineStateChangeSignal(EBtDisconnected);
                 break;
@@ -361,7 +376,7 @@ void OokjorEngine::CRFCOMMThread::run()
     else
     if( status < 0 )
         {
-            perror("uh oh");
+            qDebug("open socket failed status %d",status);
             emit iFather.EngineStatusMessageSignal("Connect Failed");            
         }
 
@@ -484,13 +499,13 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
     {
             if(iRFCOMMChannel<0) //not found
             {
-                emit EngineStatusMessageSignal("ch not found");
+                emit EngineStatusMessageSignal("ookjor not opened on mobile");
                 QMessageBox::information(iParentWindow, tr("Ookjor not started on phone"),tr("Can't find Ookjor running on selected mobile.\r\n\r\nPlease install/start the Ookjor mobile program on your phone and try again."));
                 emit EngineStateChangeSignal(EBtIdle);
             }
             else
             {
-                emit EngineStatusMessageSignal("ch found");
+                emit EngineStatusMessageSignal("channel found");
 
                 //start connect RFCOMM thread
                 //////////////
