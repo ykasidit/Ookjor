@@ -118,6 +118,7 @@ void OokjorWindow::on_connectButton_clicked()
 void OokjorWindow::EngineStatusMessageSlot(QString str)
 {
     ui->statusBar->showMessage(str);
+    qDebug(str.toAscii());
 }
 
 void OokjorWindow::EngineStateChangeSlot(int aState)
@@ -198,5 +199,16 @@ void OokjorWindow::OnMenuHelp()
 void OokjorWindow::on_liveDisconnectButton_clicked()
 {
     ui->liveDisconnectButton->setEnabled(false);
+    qDebug("user pressed disconnect");
     iCOokjorEngine->Disconnect();
+    qDebug("probably closed engine running socket already");
+}
+
+void OokjorWindow::on_startSendButton_clicked()
+{
+    //TODO: extract OokjorS603rd5th.sisx from resource
+    //check if file exist found or not
+    int ret = system("bluetooth-sendto OokjorS603rd5th.sisx");
+    qDebug("bluetooth-sendto exited with %d",ret);
+
 }

@@ -58,6 +58,7 @@ private:
 
 
 private slots:
+    void on_startSendButton_clicked();
     void on_liveDisconnectButton_clicked();
     void on_connectButton_clicked();
 };

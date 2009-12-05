@@ -11,16 +11,12 @@
 
 - make good pc help
 - make web with lots of pc and mobile screenshots in screenshots section
-- make video how to use
+- make video camera how to use
 
-- pc rfcomm thread reads and watches errno 
 
-- make pc do sdp to ookjor phone uuid
 
-- make s60 3rd phone app advertise sdp
-	- auto-accept rfcomm and send screenshots
 
-- pc connect rfcomm and recv screenshots
+
 
 
 

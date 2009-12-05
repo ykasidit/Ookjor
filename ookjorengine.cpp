@@ -36,19 +36,22 @@
 
 #include <errno.h> //errno global var that holds the error cause
 
-const int KMaxInBufferLen = 1024*1024*3;
+const int KMaxInBufferLen = 1024*1024*2;
 
 
 OokjorEngine::OokjorEngine(QWidget* aParentWindow)
 {
-
    iParentWindow = aParentWindow;
    QObject::connect(this, SIGNAL(EngineStateChangeSignal(int)),this, SLOT (EngineStateChangeSlot(int)));
     iThread = NULL;
+    iLiveSocketToDisconnect = 0;
 }
 
 OokjorEngine::~OokjorEngine()
 {
+    if(iLiveSocketToDisconnect!=0)
+        Disconnect(); //this would stop running rfcomm thread
+
     if(iThread && iThread->isRunning())
         iThread->wait();
 
@@ -77,8 +80,7 @@ void OokjorEngine::CSearchThread::run()
 
     emit iFather.EngineStateChangeSignal(EBtSearching);
 
-    emit iFather.EngineStatusMessageSignal("Searching...");
-    qDebug("Searching...");
+    emit iFather.EngineStatusMessageSignal("Searching...");    
 
 
     iFather.iMutex.lock();
@@ -88,7 +90,6 @@ void OokjorEngine::CSearchThread::run()
     dev_id = hci_get_route(NULL);
     sock = hci_open_dev( dev_id );
     if (dev_id < 0 || sock < 0) {
-        qDebug("open socket failed");
 
          emit iFather.EngineStateChangeSignal(EBtIdle);
          emit iFather.EngineStatusMessageSignal("Open BT socket failed");
@@ -122,7 +123,7 @@ void OokjorEngine::CSearchThread::run()
 
         QString str;
         str.sprintf("Found %s  (%s), Searching...", addr, name);
-        qDebug(str.toAscii());
+
 
         emit iFather.EngineStatusMessageSignal(str);
     }
@@ -131,7 +132,7 @@ void OokjorEngine::CSearchThread::run()
     close( sock );
 
     emit iFather.EngineStatusMessageSignal("Search complete...");
-    qDebug("Search complete");
+
 
     emit iFather.EngineStateChangeSignal(EBtSelectingPhoneToSDP);
     ////////////////////////////
@@ -139,6 +140,8 @@ void OokjorEngine::CSearchThread::run()
 
 void OokjorEngine::CSDPThread::run()
 {
+    qDebug("entered sdp run");
+
     emit iFather.EngineStateChangeSignal(EBtSearchingSDP);
     emit iFather.EngineStatusMessageSignal("Searching device...");
     int channel = -1;
@@ -153,8 +156,9 @@ void OokjorEngine::CSDPThread::run()
             int err;
             bdaddr_t target;
 
+            qDebug("copy bdaddr");
             CopyBDADDR(iFather.iDevList[iFather.iSelectedIndex].iAddr, target.b);
-
+            qDebug("copy bdaddr complete");
 
             sdp_list_t *response_list = NULL, *search_list, *attrid_list;
             sdp_session_t *session = 0;
@@ -172,7 +176,7 @@ void OokjorEngine::CSDPThread::run()
             attrid_list = sdp_list_append( NULL, &range );
 
             // get a list of service records that have UUID 0xabcd
-            emit iFather.EngineStatusMessageSignal("get a list of service records that have UUID 0xabcd");
+            emit iFather.EngineStatusMessageSignal("get a list of service records that has our target UUID");
             err = sdp_service_search_attr_req( session, search_list, \
                     SDP_ATTR_REQ_RANGE, attrid_list, &response_list);
 
@@ -243,8 +247,8 @@ void OokjorEngine::OnNewJpgData(QByteArray& ba)
 //adapted from http://people.csail.mit.edu/albert/bluez-intro/x502.html
 void OokjorEngine::CRFCOMMThread::run()
 {
-    const int KReadBuffSize = 2048;
-    uint8_t* buf = (uint8_t*) malloc(KReadBuffSize);
+    const int KReadBuffSize = 1024;
+    uint8_t buf[KReadBuffSize];
     QByteArray jpgbuff;
     QByteArray qKJpgHeader,qKJpgFooter;
 
@@ -364,7 +368,7 @@ void OokjorEngine::CRFCOMMThread::run()
     emit iFather.EngineStateChangeSignal(EBtIdle);
 
     close(s);
-    free(buf);
+
 
 }
 
@@ -398,7 +402,10 @@ void OokjorEngine::GetDevListClone(QList<TBtDevInfo>& aDevList)
 
 void OokjorEngine::Disconnect()
 {
+    qDebug("preparing to close socket handle %d",iLiveSocketToDisconnect);
     close(iLiveSocketToDisconnect); //thise would cause the CRFCOMMThread to quit as it's waiting on read
+    qDebug("closed socket");
+    iLiveSocketToDisconnect = 0;
 }
 
 void OokjorEngine::EngineStateChangeSlot(int aState)
@@ -406,6 +413,7 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
     switch(aState)
     {
     case OokjorEngine::EBtIdle:      
+        iLiveSocketToDisconnect = 0;
         break;
     case OokjorEngine::EBtSearching:        
         break;
@@ -413,7 +421,7 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
         {
             if(iDevList.isEmpty())
             {
-                QMessageBox::information(iParentWindow, tr("Ookjor: No nearby Bluetooth devices found"),tr("Please install/start the Ookjor mobile program on your phone"));
+                QMessageBox::information(iParentWindow, tr("Ookjor: No nearby Bluetooth devices found"),tr("No nearby Bluetooth devices found.\r\n\r\nPlease install/start the Ookjor mobile program on your phone and try again."));
                 emit EngineStateChangeSignal(EBtIdle);
                 emit EngineStatusMessageSignal("No nearby Bluetooth devices found");
             }
@@ -435,14 +443,21 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
                     //////////////// start sdp search thread
                     if(iThread && iThread->isRunning())
                      {
-                    iThread->wait();
+                        qDebug("Warning: waiting on scan thread? actually no thread should be active now...");
+                        iThread->wait();
+                        qDebug("wait thread ended");
                      }
 
                     //if comes here measn thread has finished
+                    qDebug("deleting iThread");
+
                     delete iThread;
+                    iThread = NULL;
 
                     iThread = new CSDPThread(*this);
+                    qDebug("created sdp thread");
                     iThread->start();
+                    qDebug("started sdp thread");
                     emit EngineStateChangeSignal(EBtSearchingSDP);
                     ////////////////
 
@@ -469,7 +484,8 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
     {
             if(iRFCOMMChannel<0) //not found
             {
-                emit EngineStatusMessageSignal("ch Not found");
+                emit EngineStatusMessageSignal("ch not found");
+                QMessageBox::information(iParentWindow, tr("Ookjor not started on phone"),tr("Can't find Ookjor running on selected mobile.\r\n\r\nPlease install/start the Ookjor mobile program on your phone and try again."));
                 emit EngineStateChangeSignal(EBtIdle);
             }
             else
@@ -503,7 +519,7 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
 
         break;
     case OokjorEngine::EBtDisconnected:
-
+        iLiveSocketToDisconnect = 0;
         break;
     default:
 
