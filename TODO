@@ -1,3 +1,18 @@
+- output all states, log to logfile to analyse crashes
+- fix crash on "connect to sdp..."
+
+- mobile hide sdp when connected
+- mobile show sdp and restart server/listener after disconnected
+- mobile show "Ready" "Press "Connect" on Computer" "Download/Install on computer from www.ClearEvo.com"
+- mobile adjust help,about
+
+- pc smaller buffer sizemax, show in status current buffersize, speed FPS
+- pc show mobile "ready" example pic in step 1
+
+- make good pc help
+- make web with lots of pc and mobile screenshots in screenshots section
+- make video how to use
+
 - pc rfcomm thread reads and watches errno 
 
 - make pc do sdp to ookjor phone uuid

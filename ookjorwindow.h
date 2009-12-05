@@ -47,6 +47,7 @@ public:
  void OnMenuHelp();
  void OnMenuAbout();
 
+
 private:
     Ui::OokjorWindow *ui;
     OokjorEngine* iCOokjorEngine;
@@ -57,7 +58,8 @@ private:
 
 
 private slots:
-    void on_pushButton_clicked();
+    void on_liveDisconnectButton_clicked();
+    void on_connectButton_clicked();
 };
 
 #endif // OOKJORWINDOW_H

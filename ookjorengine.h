@@ -111,6 +111,7 @@ class OokjorEngine : public QObject
         bool StartSearch();
         void CancelSearch();
         void GetDevListClone(QList<TBtDevInfo>& aDevList);
+        void Disconnect();
     /////////////////
 
     ////utils
@@ -126,7 +127,7 @@ private:
     QMutex iMutex;
     QList<TBtDevInfo> iDevList;
     int iRFCOMMChannel;    
-
+    int iLiveSocketToDisconnect;
     //////////////////////////////
 
     int iSelectedIndex;

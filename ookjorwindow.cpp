@@ -39,14 +39,14 @@ OokjorWindow::OokjorWindow(QWidget *parent)
     QObject::connect(iCOokjorEngine, SIGNAL(GotNewJpgSignal(void)),this, SLOT (GotNewJpgSlot(void)));
 
     //test load pic
-    iPixmap.load("gnu.jpg");
+    //iPixmap.load("gnu.jpg");
     /////////////
 
    iPixmapItem.setPixmap(iPixmap);
    iScene.addItem(&iPixmapItem);
 
    QMovie* gif = new QMovie(":/images/ajax-loader.gif");
-   ui->label->setMovie(gif);
+   ui->connectLoadingLabel->setMovie(gif);
    gif->start();
    ///////////test
    /*QGraphicsItem *ball = new QGraphicsEllipseItem(0, 0, 20, 20);
@@ -73,8 +73,11 @@ OokjorWindow::OokjorWindow(QWidget *parent)
    ////////
 
 
-    ui->graphicsView->setScene(&iScene);
-    //ui->graphicsView->hide();
+    ui->liveView->setScene(&iScene);
+    //ui->liveView->hide();
+
+    EngineStateChangeSlot(OokjorEngine::EBtIdle);
+
 }
 
 void OokjorWindow::GotNewJpgSlot()
@@ -86,7 +89,7 @@ if(loadsuccess)
         EngineStatusMessageSlot("img load ok");
         iPixmapItem.setPixmap(iPixmap);
         iScene.setSceneRect(iPixmapItem.boundingRect());
-        //ui->graphicsView->update();
+        //ui->liveView->update();
 
     }
     else
@@ -103,7 +106,7 @@ OokjorWindow::~OokjorWindow()
     delete iCOokjorEngine;
 }
 
-void OokjorWindow::on_pushButton_clicked()
+void OokjorWindow::on_connectButton_clicked()
 {
     if(!iCOokjorEngine->StartSearch())
     {
@@ -122,15 +125,30 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
     switch(aState)
     {
     case OokjorEngine::EBtIdle:
-        ui->pushButton->setText("Connect to Mobile");
-        ui->pushButton->setEnabled(true);
-        //ui->textBrowser->show();
-        ui->graphicsView->hide();
+
+        ui->liveView->hide();
+        ui->liveDisconnectButton->hide();
+
+        ui->connectLoadingLabel->hide();
+        ui->connectButton->setText("Connect to Mobile");
+        ui->connectButton->setEnabled(true);
+
+        ui->groupBox_1->show();
+        ui->groupBox_2->show();
+
+        this->adjustSize();
+        //this->resize(this->minimumSize());
+
         break;
     case OokjorEngine::EBtSearching:
-        ui->pushButton->setEnabled(false);
-        ui->pushButton->setText("Please wait...");
+        ui->groupBox_1->hide();
 
+        ui->connectButton->setEnabled(false);
+        ui->connectButton->setText("Please wait...");
+        ui->connectLoadingLabel->show();
+
+        this->adjustSize();
+        //this->resize(this->minimumSize());
         break;
     case OokjorEngine::EBtSelectingPhoneToSDP:
 
@@ -145,8 +163,16 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
 
         break;
     case OokjorEngine::EBtConnectionActive:
+
+        ui->groupBox_2->hide();
+
     //ui->textBrowser->hide();
-    ui->graphicsView->show();
+    ui->liveView->show();
+    ui->liveDisconnectButton->setEnabled(true);
+    ui->liveDisconnectButton->show();
+    //this->resize(this->minimumSize());
+
+    this->adjustSize();
         break;
     case OokjorEngine::EBtDisconnected:
 
@@ -167,4 +193,10 @@ void OokjorWindow::OnMenuAbout()
 void OokjorWindow::OnMenuHelp()
 {
 //QMessageBox::information(this, tr("Help"),tr("Please visit www.ClearEvo.com for details."));
+}
+
+void OokjorWindow::on_liveDisconnectButton_clicked()
+{
+    ui->liveDisconnectButton->setEnabled(false);
+    iCOokjorEngine->Disconnect();
 }

@@ -281,6 +281,9 @@ void OokjorEngine::CRFCOMMThread::run()
     //Read
     if( status == 0 ) {
 
+        //no need mutex here because the button to disconnect (that would call close on socket handle iLiveSocketToDisconnect) isn't shown yet
+         iFather.iLiveSocketToDisconnect = s;
+
     emit iFather.EngineStatusMessageSignal("Connected... Reading...");
     emit iFather.EngineStateChangeSignal(EBtConnectionActive);
 
@@ -393,6 +396,10 @@ void OokjorEngine::GetDevListClone(QList<TBtDevInfo>& aDevList)
     iMutex.unlock();
 }
 
+void OokjorEngine::Disconnect()
+{
+    close(iLiveSocketToDisconnect); //thise would cause the CRFCOMMThread to quit as it's waiting on read
+}
 
 void OokjorEngine::EngineStateChangeSlot(int aState)
 {    
