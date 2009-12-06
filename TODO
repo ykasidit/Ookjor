@@ -2,7 +2,7 @@
 
 - mobile why black them third label not show
 - mobile lower jpg conv quality/size
-- mobile why first time connect/send obex fails - just show note about that? or try 2 times automatically - show note on obex
+- mobile why first time connect/send obex fails - just show note about that? or try 2 times automatically if first connect returns no read data in 2 seconds - show note on obex
 
 
 - pc smaller buffer sizemax, show in status current buffersize, speed FPS
