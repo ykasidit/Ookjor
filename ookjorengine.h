@@ -108,8 +108,11 @@ class OokjorEngine : public QObject
 
         friend class CSearchThread;
         friend class CSDPThread;
+
+        void StartPrevdev(QByteArray& ba);
         bool StartSearch();
         void CancelSearch();
+        void StartSDPToSelectedDev(int aSelIndex);
         void GetDevListClone(QList<TBtDevInfo>& aDevList);
         void Disconnect();
     /////////////////

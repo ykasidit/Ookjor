@@ -26,7 +26,7 @@
 #include <QGraphicsTextItem>
 #include <QMovie>
 #include <QFile>
-#include <QPicture>
+
 
 OokjorWindow::OokjorWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::OokjorWindow)
@@ -44,16 +44,18 @@ OokjorWindow::OokjorWindow(QWidget *parent)
     //iPixmap.load("gnu.jpg");
     /////////////
 
-    QPicture smallss;
+    QPixmap smallss;
     smallss.load(":/images/mobissori_small.jpg");
-    ui->startPicLabel->setPicture(smallss);
+    ui->startPicLabel->setPixmap(smallss);
 
    iPixmapItem.setPixmap(iPixmap);
    iScene.addItem(&iPixmapItem);
+   
+   iAnimGif = NULL;
 
-   QMovie* gif = new QMovie(":/images/ajax-loader.gif");
-   ui->connectLoadingLabel->setMovie(gif);
-   gif->start();
+   iAnimGif = new QMovie(":/images/ajax-loader.gif");
+   ui->connectLoadingLabel->setMovie(iAnimGif);
+   iAnimGif->start();
    ///////////test
    /*QGraphicsItem *ball = new QGraphicsEllipseItem(0, 0, 20, 20);
    QGraphicsTextItem *ball = new QGraphicsTextItem ();
@@ -82,6 +84,15 @@ OokjorWindow::OokjorWindow(QWidget *parent)
     ui->liveView->setScene(&iScene);
     //ui->liveView->hide();
 
+    //checkbox state         
+     QFile f( "prevdevchecked" );
+      if(f.open(QIODevice::ReadOnly))
+      {
+          ui->connectPrevCheckBox->setChecked(true);
+          on_connectPrevCheckBox_clicked();
+      }
+      /////////
+
     EngineStateChangeSlot(OokjorEngine::EBtIdle);
 
 }
@@ -92,16 +103,14 @@ bool loadsuccess = iPixmap.loadFromData(iCOokjorEngine->iNewJpgBuffer,"JPG");
 if(loadsuccess)
 {
 
-        EngineStatusMessageSlot("img load ok");
+        //EngineStatusMessageSlot("frame load ok");
         iPixmapItem.setPixmap(iPixmap);
         iScene.setSceneRect(iPixmapItem.boundingRect());
         //ui->liveView->update();
 
     }
     else
-        EngineStatusMessageSlot("img load failed");
-
-
+        EngineStatusMessageSlot("frame load failed");
 }
 
 
@@ -110,13 +119,22 @@ OokjorWindow::~OokjorWindow()
 {
     delete ui;
     delete iCOokjorEngine;
+    delete iAnimGif;
 }
 
 void OokjorWindow::on_connectButton_clicked()
 {
-    if(!iCOokjorEngine->StartSearch())
+    if(ui->connectPrevCheckBox->isChecked() && this->iPrevDevAddr.length()==6)
+    {        
+        qDebug("starting connect to prevdev");
+        iCOokjorEngine->StartPrevdev(iPrevDevAddr);
+    }
+else
     {
-        ui->statusBar->showMessage("Start search failed...",3000);        
+        if(!iCOokjorEngine->StartSearch())
+        {
+            ui->statusBar->showMessage("Start search failed...",3000);
+        }
     }
 }
 
@@ -222,11 +240,9 @@ void OokjorWindow::on_startSendButton_clicked()
 
 }
 
-void OokjorWindow::on_connectPrevCheckBox_clicked()
+void OokjorWindow::ClearAndGetPrevDevAddr()
 {
-    if(ui->connectPrevCheckBox->isChecked())
-    {
-        iPrevDevAddr.clear();
+         iPrevDevAddr.clear();
 
          QFile f( "prevdev.bdaddr" );
           if(f.open(QIODevice::ReadOnly))
@@ -234,13 +250,28 @@ void OokjorWindow::on_connectPrevCheckBox_clicked()
               iPrevDevAddr = f.readAll();
               f.close();
           }
+}
+
+void OokjorWindow::on_connectPrevCheckBox_clicked()
+{
+    if(ui->connectPrevCheckBox->isChecked())
+    {
+        ClearAndGetPrevDevAddr();
 
        if(iPrevDevAddr.length()==6)
           {
-            //ok
+                //ok
+             QFile f( "prevdevchecked" );
+              if(f.open(QIODevice::WriteOnly))
+              {
+                  f.close();
+              }
           }
        else
           {
+           QFile delf("prevdevchecked");
+           delf.remove();
+
             iPrevDevAddr.clear();
             ui->connectPrevCheckBox->setChecked(false);
             QMessageBox::information(this, tr("No previous device yet"),tr("No previous device data found"));
@@ -248,6 +279,11 @@ void OokjorWindow::on_connectPrevCheckBox_clicked()
 
     }
     else
+    {
+        QFile delf("prevdevchecked");
+        delf.remove();
+
         iPrevDevAddr.clear();
+    }
 
 }

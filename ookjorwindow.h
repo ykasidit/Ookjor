@@ -25,6 +25,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsPixmapItem>
 #include <QPixmap>
+#include <QMovie>
 
 namespace Ui
 {
@@ -64,7 +65,10 @@ private slots:
     void on_connectButton_clicked();
 
    protected:
+    void ClearAndGetPrevDevAddr();
+
     QByteArray iPrevDevAddr;
+    QMovie* iAnimGif;
 };
 
 #endif // OOKJORWINDOW_H

@@ -439,32 +439,24 @@ void OokjorEngine::Disconnect()
     iLiveSocketToDisconnect = 0;
 }
 
-void OokjorEngine::EngineStateChangeSlot(int aState)
-{    
-    switch(aState)
-    {
-    case OokjorEngine::EBtIdle:      
-        iLiveSocketToDisconnect = 0;
-        break;
-    case OokjorEngine::EBtSearching:        
-        break;
-    case OokjorEngine::EBtSelectingPhoneToSDP:
-        {
-            if(iDevList.isEmpty())
-            {
-                QMessageBox::information(iParentWindow, tr("Ookjor: No nearby Bluetooth devices found"),tr("No nearby Bluetooth devices found.\r\n\r\nPlease install/start the Ookjor mobile program on your phone and try again."));
-                emit EngineStateChangeSignal(EBtIdle);
-                emit EngineStatusMessageSignal("No nearby Bluetooth devices found");
-            }
-            else
-            {
-                SelectPhoneDialog w;
-                int aSelIndex=-1;
-                w.SetList(iDevList,&aSelIndex);
-                w.exec();
-                if( aSelIndex >=0 ) //selected
-                {
+void OokjorEngine::StartPrevdev(QByteArray& ba)
+{
+
+    emit EngineStateChangeSignal(OokjorEngine::EBtSearching); //let the ui prepare to go to sdp state
+    iDevList.clear();
+
+    TBtDevInfo devinfo;
+    CopyBDADDR((uint8_t*)ba.data(),(uint8_t*)devinfo.iAddr);
+
+    iDevList.append(devinfo);
+    iSelectedIndex = 0;
+    StartSDPToSelectedDev(0);
+}
+
+void OokjorEngine::StartSDPToSelectedDev(int aSelIndex)
+{
                     iSelectedIndex = aSelIndex;
+                    qDebug("user selected index: %d",aSelIndex);
                     QString str;
                     str = iDevList[aSelIndex].iName;
                     str += " selected, preparing to search for service...";
@@ -492,7 +484,34 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
                     emit EngineStateChangeSignal(EBtSearchingSDP);
                     ////////////////
 
-
+}
+void OokjorEngine::EngineStateChangeSlot(int aState)
+{    
+    switch(aState)
+    {
+    case OokjorEngine::EBtIdle:      
+        iLiveSocketToDisconnect = 0;
+        break;
+    case OokjorEngine::EBtSearching:        
+        break;
+    case OokjorEngine::EBtSelectingPhoneToSDP:
+        {
+            if(iDevList.isEmpty())
+            {
+                QMessageBox::information(iParentWindow, tr("Ookjor: No nearby Bluetooth devices found"),tr("No nearby Bluetooth devices found.\r\n\r\nPlease install or start (if already installed) the Ookjor mobile program on your phone and try again."));
+                emit EngineStateChangeSignal(EBtIdle);
+                emit EngineStatusMessageSignal("No nearby Bluetooth devices found");
+            }
+            else
+            {
+                SelectPhoneDialog w;
+                int aSelIndex=-1;
+                w.SetList(iDevList,&aSelIndex);
+                w.exec();
+                if( aSelIndex >=0 ) //selected
+                {
+                    qDebug("aselindex %d",aSelIndex);
+                 StartSDPToSelectedDev(aSelIndex);
                 }
                 else //closed/cancelled
                 {                    

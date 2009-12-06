@@ -44,6 +44,6 @@ void SelectPhoneDialog::changeEvent(QEvent *e)
 
 void SelectPhoneDialog::on_listWidget_clicked(QModelIndex index)
 {
-  *iReturnSelectedIndex = index.column();
+  *iReturnSelectedIndex = index.row();
   this->close();
 }
