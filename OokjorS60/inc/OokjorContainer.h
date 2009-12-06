@@ -23,6 +23,7 @@
 
 #include "SkinnedContainer.h"
 #include <aknview.h>
+#include <eiklabel.h>
 
 class COokjorAppUi;
 
@@ -37,20 +38,24 @@ public:
 
     virtual void ConstructL(const TRect& aRect);
 
-	// from CoeControl
-     TInt CountComponentControls() const;
-     CCoeControl* ComponentControl(TInt aIndex) const;
+	// from CoeControl, probably through
+    virtual TInt CountComponentControls() const;
+    virtual CCoeControl* ComponentControl(TInt aIndex) const;
 	virtual void Draw(const TRect& aRect) const;
-
-	TUint8 GetOokjorCommandCode(TUint keyCode);
+	virtual void SizeChanged();
 	virtual TKeyResponse OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
-	void AddLog(const TDesC& aLog);
+	/////////
 
     COokjorAppUi *appui;
-	CFbsBitmap* iBitmap;
-	void LoadBitMap();
 
-    TBuf8<6> iSendBuf;
+	void SetStateL(const TDesC& aState);
+	void SetStatusL(const TDesC& aState);
+	void SetHintL(const TDesC& aState);
+
+	CEikLabel* iStateLabel;//ready, connected, disconnected
+    CEikLabel* iStatusLabel;//press connect on computer, sending frame, etc
+    CEikLabel* iHintLabel;//Install on computer from www.ClearEvo.com
+
     };
 
 #endif //

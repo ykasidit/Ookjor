@@ -80,31 +80,30 @@ void CAboutTextContainer::AddTextToEditorL()
 		iEditor->AddLineBreakL();
 		iEditor->AddEndOfParagraphL();
 
-		iEditor->SetBoldOn(ETrue);
-		header1 = StringLoader::LoadLC(R_OOKJORHELPEND_STR);
+
+		iEditor->SetSystemFont(EAnnotationFont);
+		iEditor->SetAlign(CParaFormat::ELeftAlign);
+
+
+		header1 = StringLoader::LoadLC(R_ABOUT_STR);
 		iEditor->AddTextL (*header1);
 		CleanupStack::PopAndDestroy(header1);
 		iEditor->AddLineBreakL();
 		iEditor->AddEndOfParagraphL();
 
+		header1 = StringLoader::LoadLC(R_HOWTO_STR);
+		iEditor->AddTextL (*header1);
+		CleanupStack::PopAndDestroy(header1);
+		iEditor->AddLineBreakL();
+		iEditor->AddEndOfParagraphL();
 
-
-
-		iEditor->SetSystemFont(EAnnotationFont);
-		iEditor->SetAlign(CParaFormat::ELeftAlign);
 		header1 = StringLoader::LoadLC(R_DISCLAIMER_STR);
 		iEditor->AddTextL (*header1);
 		CleanupStack::PopAndDestroy(header1);
 		iEditor->AddLineBreakL();
 		iEditor->AddEndOfParagraphL();
 
-		header1 = StringLoader::LoadLC(R_EDITIONDETAILS_STR);
-		iEditor->AddTextL (*header1);
-		CleanupStack::PopAndDestroy(header1);
-		iEditor->AddLineBreakL();
-		iEditor->AddEndOfParagraphL();
-
-		header1 = StringLoader::LoadLC(R_WAP_STR);
+		header1 = StringLoader::LoadLC(R_INFO_STR);
 		iEditor->AddTextL (*header1);
 		CleanupStack::PopAndDestroy(header1);
 		iEditor->AddLineBreakL();

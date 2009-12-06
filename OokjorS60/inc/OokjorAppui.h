@@ -97,18 +97,15 @@ public: // from CAknAppUi
 //private:
 /*! @var iAppView The application view */
     COokjorAppView* iAppView;
-    COokjorSettingsView* iSettingsView;
-    CAknView *iHelpAppView;
     CAknView *iAboutAppView;
 
     TBool iLayout;
     TBool iVisible;
 
-    CAknNavigationControlContainer* iNaviPane;
-    CAknTabGroup*                   iTabGroup;
-    CAknNavigationDecorator*        iDecoratedTabGroup;
+    //CAknNavigationControlContainer* iNaviPane;
+    //CAknTabGroup*                   iTabGroup;
+    //CAknNavigationDecorator*        iDecoratedTabGroup;
 
-    TKeyResponse HandleKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
 
     void DoConstuctL();
 

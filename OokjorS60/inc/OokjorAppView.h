@@ -73,6 +73,11 @@ public:
 	CFbsBitmap* iSSBitmap;
 	CImageEncoder* iImageEncoder;
 	HBufC8* iJPGSSBuffer;
+
+	TBuf<128> iState;
+	TBuf<128> iStatus;
+	TBuf<128> iHint;
+
     };
 
 

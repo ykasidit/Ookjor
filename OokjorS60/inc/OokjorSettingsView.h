@@ -36,12 +36,10 @@ public:
 	COokjorAppUi *appui;
 	TUid Id() const;
 	void HandleCommandL(TInt aCommand);
-  	TKeyResponse HandleKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType);
   	static COokjorSettingsView* NewL(COokjorAppUi *ui);
   	static COokjorSettingsView* NewLC(COokjorAppUi *ui);
     ~COokjorSettingsView();
-    static TBool AutoStartEnabled();
-	//void HandleForegroundEventL(TBool fg);
+    //void HandleForegroundEventL(TBool fg);
 	//void HandleStatusPaneSizeChange();
 	void DoActivateL(const TVwsViewId& aPrevViewId,
                    TUid aCustomMessageId,

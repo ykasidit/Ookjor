@@ -39,6 +39,7 @@ public: // Constructors and destructor
 	~CScrollRichTextContainer();
 	CScrollRichTextContainer(MObjectProvider *provider);
 
+	void HandleResourceChange( TInt aType );
 	void SizeChanged();
 
 protected:
@@ -56,6 +57,7 @@ protected:
 
 	MAknsControlContext* iBackGround; // for skins support
 	TTypeUid::Ptr MopSupplyObject(TTypeUid aId);
+
 
 
 	CMyRichTextEditor* iEditor;

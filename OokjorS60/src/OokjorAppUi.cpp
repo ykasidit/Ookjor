@@ -26,14 +26,14 @@
 #include <aknglobalmsgquery.h>
 #include "OokjorAppui.h"
 #include "OokjorAppView.h"
-#include "OokjorSettingsView.h"
+
 #include <Ookjor.rsg>
 #include "Ookjor.hrh"
 #include "OokjorApplication.h"
 #include "HelpAppView.h"
 
 #include <aknmessagequerydialog.h>
-#include "SettingsListSettings.h"
+
 
 #include "AboutAppView.h"
 #include <s32file.h>
@@ -47,7 +47,7 @@ void COokjorAppUi::ConstructL()
   //BaseConstructL(KEnableSkinFlag | KLayoutAwareFlag);
   BaseConstructL(0x08 | 0x1000);
 #endif
-
+/*
 	CEikStatusPane* sp = StatusPane();
 iNaviPane = (CAknNavigationControlContainer *)sp->ControlL(TUid::Uid(EEikStatusPaneUidNavi));
 sp->SetDimmed(ETrue);
@@ -63,41 +63,13 @@ if (iTabGroup)
    {
 	iTabGroup->SetActiveTabById(ENavigationPaneStatusViewId);
    }
+*/
 
   //we dont use autostart in this app
-	 iAppView = COokjorAppView::NewL(this);
- iSettingsView = COokjorSettingsView::NewL(this);
-
- iHelpAppView = CHelpAppView::NewL( ENavigationPaneHelpViewId);
+ iAppView = COokjorAppView::NewL(this);
  iAboutAppView = CAboutAppView::NewL( ENavigationPaneAboutViewId);
 
-	_LIT(KIni,"Ookjor.ini");
- TFileName fname(KIni);
-	#ifndef __WINS__
- CompleteWithPrivatePathL(fname);
-	#endif
- TSettingsListSettings settings;
-
- TRAPD(err,
- RFs fs = iCoeEnv->FsSession();
-
- User::LeaveIfError(fs.Connect());
- CleanupClosePushL(fs);
- RFileReadStream rfrs;
- if(rfrs.Open(fs,fname,EFileRead) == KErrNone)
- {
-	    CleanupClosePushL(rfrs);
- 	settings.InternalizeL(rfrs);
- 	CleanupStack::PopAndDestroy();
-	}
-	CleanupStack::PopAndDestroy();
-	);
-
-
-
  AddViewL(iAboutAppView);
- AddViewL(iSettingsView); // transfer ownership to base class
- AddViewL(iHelpAppView);
  AddViewL(iAppView);    // transfer ownership to base class
  SetDefaultViewL(*iAppView);
 
@@ -116,22 +88,11 @@ COokjorAppUi::COokjorAppUi()
 
 COokjorAppUi::~COokjorAppUi()
     {
-     delete iDecoratedTabGroup;
+     //delete iDecoratedTabGroup;
      //delete iExitTimer;
 
     }
 
-
- TKeyResponse COokjorAppUi::HandleKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType)
- {
-
- 	 TKeyResponse ret = iTabGroup->OfferKeyEventL(aKeyEvent,aType);
-
- 	 if(ret == EKeyWasConsumed)
- 	 	ActivateLocalViewL(TUid::Uid(iTabGroup->ActiveTabId()));
-
- 	 return ret;
- }
 
  void COokjorAppUi::HandleCommandL(TInt aCommand)
     {
@@ -158,8 +119,7 @@ COokjorAppUi::~COokjorAppUi()
 
 	        case EOokjorSettingsCommand:
 	        	{
-		iTabGroup->SetActiveTabById(ENavigationPaneSettingsViewId);
-	    ActivateLocalViewL(TUid::Uid(iTabGroup->ActiveTabId()));
+	    ActivateLocalViewL(TUid::Uid(ENavigationPaneSettingsViewId));
 	        	};
 	        	break;
 
@@ -180,19 +140,12 @@ COokjorAppUi::~COokjorAppUi()
 
 	        case EOokjorHelpCommand:
 	        	{
-
-				iTabGroup->SetActiveTabById(ENavigationPaneHelpViewId);
-				ActivateLocalViewL(TUid::Uid(iTabGroup->ActiveTabId()));
-
-
+				ActivateLocalViewL(TUid::Uid(ENavigationPaneHelpViewId));
 	        	};
 	        	break;
 	        case EOokjorAboutCommand:
 	        	{
-
-	        	iTabGroup->SetActiveTabById(ENavigationPaneAboutViewId);
-				ActivateLocalViewL(TUid::Uid(iTabGroup->ActiveTabId()));
-
+				ActivateLocalViewL(TUid::Uid(ENavigationPaneAboutViewId));
 	        	};
 	        	break;
 
@@ -201,10 +154,9 @@ COokjorAppUi::~COokjorAppUi()
 	        }
     	}
     	else
-    	if(CAknViewAppUi::iView == iHelpAppView || CAknViewAppUi::iView == iAboutAppView)
+    	if( CAknViewAppUi::iView == iAboutAppView)
     	{
-			iTabGroup->SetActiveTabById(ENavigationPaneStatusViewId);
-			ActivateLocalViewL(TUid::Uid(iTabGroup->ActiveTabId()));
+			ActivateLocalViewL(TUid::Uid(ENavigationPaneStatusViewId));
     	}
 
     }
@@ -213,7 +165,7 @@ void COokjorAppUi::HandleWsEventL(const TWsEvent &aEvent, CCoeControl *aDestinat
 	{
 		switch (aEvent.Type())
 		{
-			//case KAknUidValueEndKeyCloseEvent:  0x101F87F0
+			//case KAknUidValueEndKeyCloseEvent:  0x101F87F0 that's the red key press handling
 			case 0x101F87F0:
 			{
 				TApaTask task(iEikonEnv->WsSession( ));

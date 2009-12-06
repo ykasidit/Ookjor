@@ -95,6 +95,7 @@ void CBtServer::StopServer()
 		iSocketServer.Close();
 
 	delete iAdvertiser;
+	iAdvertiser = NULL;
 	iState = EIdle;
 }
 
@@ -137,7 +138,9 @@ void CBtServer::RunL()
 				{
 					iState = EConnected;
 					if (iStatus.Int() == KErrNone)
+					{
 						iBtServerCaller.OnBtServerStateChanged(iState,iStatus.Int(),_L("Connected"));
+					}
 					else
 					{
 						StopServer();
@@ -155,6 +158,9 @@ void CBtServer::RunL()
 				{
 					StopServer();
 					iBtServerCaller.OnBtServerStateChanged(iState,iStatus.Int(),_L("send failed - disconnected"));
+					TRAPD(err,
+					StartServerL();
+					);
 				}
 			}
 			break;

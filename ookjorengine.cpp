@@ -247,8 +247,8 @@ void OokjorEngine::OnNewJpgData(QByteArray& ba)
 //adapted from http://people.csail.mit.edu/albert/bluez-intro/x502.html
 void OokjorEngine::CRFCOMMThread::run()
 {
-    const int KReadBuffSize = 1024;
-    uint8_t buf[KReadBuffSize];
+    const int KReadBuffSize = 100*1024;//100kb buffer
+    uint8_t* buf = (uint8_t*) malloc(KReadBuffSize);
     QByteArray jpgbuff;
     QByteArray qKJpgHeader,qKJpgFooter;
 
@@ -292,28 +292,28 @@ void OokjorEngine::CRFCOMMThread::run()
          iFather.iLiveSocketToDisconnect = s;
          iFather.iMutex.unlock();
 
-    emit iFather.EngineStatusMessageSignal("Connected... Reading...");
+    emit iFather.EngineStatusMessageSignal("Connected, reading first frame...");
     qDebug("presignal state change 0");
     emit iFather.EngineStateChangeSignal(EBtConnectionActive);
     qDebug("postsignal state change 0");
 
         int bytes_read;
-        uint32_t count=1;
-        uint32_t totalb=0;
-        char progress;
+        //uint32_t count=1;
+        //uint32_t totalb=0;
+        //char progress;
 
         int jpgstartindex,jpgendindex;
 
 
         while(true)
         {
-            memset(buf,0,KReadBuffSize);
-            qDebug("Reading...");
+            //memset(buf,0,KReadBuffSize);
+            //qDebug("Reading...");
             bytes_read = ::read(s, buf, KReadBuffSize);
-            qDebug("Read %d bytes",bytes_read);
+            //qDebug("Read %d bytes",bytes_read);
             if( bytes_read > 0 )
             {
-                QString str;
+                /*QString str;
                 switch(count%4)
                 {
                 case 0: progress = '/';break;
@@ -321,7 +321,7 @@ void OokjorEngine::CRFCOMMThread::run()
                 case 2: progress = '\\';break;
                 case 3: progress = '|';break;
                 }
-                totalb += bytes_read;
+                totalb += bytes_read;*/
 
                 if(jpgbuff.length() > KMaxInBufferLen)
                     jpgbuff.clear();
@@ -332,7 +332,7 @@ void OokjorEngine::CRFCOMMThread::run()
 
                 while(true)
                 {
-                    qDebug("finding jpg in buffer");
+                    //qDebug("finding jpg in buffer");
 
                     jpgstartindex = jpgbuff.indexOf(qKJpgHeader);
                     jpgendindex = jpgbuff.indexOf(qKJpgFooter);
@@ -342,11 +342,11 @@ void OokjorEngine::CRFCOMMThread::run()
                         QByteArray ajpg = jpgbuff.mid(jpgstartindex,jpgendindex-jpgstartindex);
                         iFather.OnNewJpgData(ajpg);
                         jpgbuff.remove(0,jpgendindex+1);
-                        qDebug("found jpeg");
+                        //qDebug("found jpeg");
                     }
                     else
                     {
-                        qDebug("no more jpeg");
+                        //qDebug("no more jpeg");
                         break;
                     }
 
@@ -365,9 +365,12 @@ void OokjorEngine::CRFCOMMThread::run()
                 emit iFather.EngineStateChangeSignal(EBtDisconnected);
                 break;
             }
+
+            /*
             count++;
             if(count > 10000)
-                count = 0;
+            count = 0;
+            */
         }
         
 
@@ -383,7 +386,7 @@ void OokjorEngine::CRFCOMMThread::run()
     emit iFather.EngineStateChangeSignal(EBtIdle);
 
     close(s);
-
+    free(buf);
 
 }
 

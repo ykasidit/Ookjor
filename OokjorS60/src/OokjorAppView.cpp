@@ -21,16 +21,13 @@
 #include <eikenv.h>
 #include <coemain.h>
 #include <Ookjor.rsg>
-#include <aknnotewrappers.h>
 #include <eikmenup.h>
-#include <stringloader.h>		// StringLoader
 #include "OokjorAppui.h"
-#include <aknnotewrappers.h>
 
 #include "OokjorApplication.h"
 #include "Ookjor.hrh"
-//#include "OokjorContainer.h"
-#include "IncallertContainer.h"
+#include "OokjorContainer.h"
+//#include "IncallertContainer.h"
 
 #include "OokjorAppView.h"
 
@@ -139,7 +136,12 @@ void COokjorAppView::DoActivateL(const TVwsViewId& /*aPrevViewId*/,
                                     const TDesC8& /*aCustomMessage*/)
     {
 	    ASSERT(iContainer == NULL);
-		iContainer = CIncallertContainer::NewL(ClientRect());
+		iContainer = COokjorContainer::NewL(ClientRect());
+		COokjorContainer* container = (COokjorContainer*) iContainer;
+		container->SetStateL(iState);
+		container->SetStatusL(iStatus);
+		container->SetHintL(iHint);
+		container->SizeChanged();
 		AppUi()->AddToStackL(iContainer);
     }
 
@@ -157,39 +159,62 @@ void COokjorAppView::DoDeactivate()
 void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, const TDesC& aDesc)
 {
 
+	COokjorContainer* container = (COokjorContainer*) iContainer;
+
+
 	switch(aState)
 	{
 		case CBtServer::EIdle:
 		{
-			CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
-				informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
-				informationNote->ExecuteLD(aDesc);
-
+			iState = _L("Starting up...");
+			iStatus = _L("Please wait...");
+			iHint = _L("Please wait...");
+			if(container)
+			{
+			container->SetStateL(iState);
+			container->SetStatusL(iStatus);
+			container->SetHintL(iHint);
+			container->SizeChanged();
+			//container->DrawNow();
+			}
 		}
 			break;
 		case CBtServer::EWaitingComputer:
 		{
-			CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
-				informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
-				informationNote->ExecuteLD(aDesc);
+			iState = _L("Waiting computer Ookjor");
+			iStatus = _L("Install/Start on computer");
+			iHint = _L("Get from www.ClearEvo.com");
 
+			if(container)
+			{
+			container->SetStateL(iState);
+			container->SetStatusL(iStatus);
+			container->SetHintL(iHint);
+			container->SizeChanged();
+			//container->DrawNow();
+			}
 		}
 			break;
 
 		case CBtServer::ESendingData:
 		{
-
-
 		}
 		break;
 
 		/////////////////////
 		case CBtServer::EConnected:
 		{
-			CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
-				informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
-				informationNote->ExecuteLD(aDesc);
-
+			iState = _L("Connected");
+			iStatus = _L("Streaming screen to computer...");
+			iHint = _L("Ookjor by www.ClearEvo.com");
+			if(container)
+			{
+			container->SetStateL(iState);
+			container->SetStatusL(iStatus);
+			container->SetHintL(iHint);
+			container->SizeChanged();
+			//container->DrawNow();
+			}
 		}//same handling as EDataSent so DONT BREAK - follow through
 		case CBtServer::EDataSent:
 		{

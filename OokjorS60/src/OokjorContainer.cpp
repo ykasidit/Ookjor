@@ -17,7 +17,6 @@
     along with Ookjor.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "OokjorContainer.h"
-#include <iclmain.mbg>
 #include <uikon.hrh>
 #include <avkon.hrh>
 #include <aknnotewrappers.h>
@@ -41,58 +40,130 @@ COokjorContainer* COokjorContainer::NewLC(const TRect& aRect)
 
 void COokjorContainer::ConstructL(const TRect& aRect)
     {
-	  LoadBitMap();
-	  CSkinnedContainer::ConstructL();
     CreateWindowL();
+	CSkinnedContainer::ConstructL();
+
+	MAknsSkinInstance* skin = AknsUtils::SkinInstance();
+	TRgb NormalTextColor = KRgbGray;
+
+	#ifdef EKA2
+	AknsUtils::GetCachedColor(skin, NormalTextColor, KAknsIIDQsnTextColors, EAknsCIQsnTextColorsCG6);
+	#else
+	TAknsItemID data;
+	data.Set(EAknsMajorSkin, EAknsMinorQsnComponentColorBmpCG5);
+	AknsUtils::GetCachedColor(skin, NormalTextColor, data, EAknsMinorQsnComponentColorBmpCG5);
+	#endif
+
+
+	 _LIT(KTextLoading, "Loading...");
+
+	 iStateLabel = new (ELeave) CEikLabel;
+	 iStateLabel->SetContainerWindowL( *this );
+	 iStateLabel->SetTextL(KTextLoading);
+	 //////font - http://wiki.forum.nokia.com/index.php/CS000833_-_Setting_font_for_CEikLabel
+	 _LIT(KFontName, "LatinBold12");
+	 const TInt KFontSize = 150;  // Height of the typeface in twips
+	 TFontSpec fontSpec(KFontName, KFontSize);
+	 // Find the nearest available font to the TFontSpec and assign it to CFont
+	 CGraphicsDevice* screenDevice = iEikonEnv->ScreenDevice();
+	 CFont* font;
+	 screenDevice->GetNearestFontInTwips(font, fontSpec);
+	 // Set the font for the label
+	 iStateLabel->SetFont(font);
+	 // Destroy the font
+	 screenDevice->ReleaseFont(font);
+	 //////
+	 iStateLabel->OverrideColorL( EColorLabelText, NormalTextColor );
+
+	 iStatusLabel = new (ELeave) CEikLabel;
+	 iStatusLabel->SetContainerWindowL( *this );
+	 iStatusLabel->SetTextL(KTextLoading);
+	 {
+	 //////font - http://wiki.forum.nokia.com/index.php/CS000833_-_Setting_font_for_CEikLabel
+	 _LIT(KFontName, "LatinPlain12");
+	 const TInt KFontSize = 140;  // Height of the typeface in twips
+	 TFontSpec fontSpec(KFontName, KFontSize);
+	 // Find the nearest available font to the TFontSpec and assign it to CFont
+	 CGraphicsDevice* screenDevice = iEikonEnv->ScreenDevice();
+	 CFont* font;
+	 screenDevice->GetNearestFontInTwips(font, fontSpec);
+	 // Set the font for the label
+	 iStatusLabel->SetFont(font);
+	 // Destroy the font
+	 screenDevice->ReleaseFont(font);
+	 //////
+	 }
+	 iStateLabel->OverrideColorL( EColorLabelText, NormalTextColor );
+
+
+	 iHintLabel = new (ELeave) CEikLabel;
+	 iHintLabel->SetContainerWindowL( *this );
+	 iHintLabel->SetTextL(KTextLoading);
+	 {
+	 //////font - http://wiki.forum.nokia.com/index.php/CS000833_-_Setting_font_for_CEikLabel
+	 _LIT(KFontName, "LatinPlain12");
+	 const TInt KFontSize = 135;  // Height of the typeface in twips
+	 TFontSpec fontSpec(KFontName, KFontSize);
+	 // Find the nearest available font to the TFontSpec and assign it to CFont
+	 CGraphicsDevice* screenDevice = iEikonEnv->ScreenDevice();
+	 CFont* font;
+	 screenDevice->GetNearestFontInTwips(font, fontSpec);
+	 // Set the font for the label
+	 iHintLabel->SetFont(font);
+	 // Destroy the font
+	 screenDevice->ReleaseFont(font);
+	 //////
+	 }
+	 iStatusLabel->OverrideColorL( EColorLabelText,NormalTextColor);
+
+
 	SetRect(aRect);
 	ActivateL();
     }
 
+void COokjorContainer::SizeChanged()
+{
+
+	CSkinnedContainer::SizeChanged();
+
+	TInt w,h;
+	w = Rect().Width();
+	h = Rect().Height();
+
+	if(iStateLabel)
+	{
+	iStateLabel->SetExtent(TPoint((w/2)-(iStateLabel->MinimumSize().iWidth/2),h/5), iStateLabel->MinimumSize());
+	iStatusLabel->SetExtent(TPoint((w/2)-(iStatusLabel->MinimumSize().iWidth/2),2*(h/5)), iStatusLabel->MinimumSize());
+	iHintLabel->SetExtent(TPoint((w/2)-(iHintLabel->MinimumSize().iWidth/2),3*(h/5)), iHintLabel->MinimumSize());
+	}
+}
+
 TInt COokjorContainer::CountComponentControls() const
     {
-    return 0;
+    return 3; //3 labels
     }
 
 COokjorContainer::~COokjorContainer()
 {
-	delete iBitmap;
-	iBitmap = NULL;
 }
 
 
 void COokjorContainer::Draw(const TRect& arect) const
     {
-
-	CSkinnedContainer::Draw(arect);
-
-    // Get the standard graphics context
- 	CWindowGc& gc = SystemGc();
-    // Gets the control's extent
-    TRect aRect = Rect();
-//    gc.Clear(aRect);
-
-	aRect.Width();
-    TPoint p;
-    if(iBitmap)
-    {
-    TSize picsz = iBitmap->SizeInPixels();
-
-    p.iX = aRect.Width() - picsz.iWidth;
-    p.iX/=2;
-
-    p.iY = aRect.Height() - picsz.iHeight;
-    p.iY/=2;
-
-    if(iBitmap)
-    {
-		gc.BitBlt(p,iBitmap);
-    }
+		CSkinnedContainer::Draw(arect);
     }
 
-    }
-
-CCoeControl* COokjorContainer::ComponentControl(TInt) const
+CCoeControl* COokjorContainer::ComponentControl(TInt index) const
     {
+		switch(index)
+		{
+		case 0:
+			return iStateLabel;
+		case 1:
+			return iStatusLabel;
+		case 2:
+			return iHintLabel;
+		}
    		return NULL;
     }
 
@@ -100,29 +171,33 @@ COokjorContainer::COokjorContainer()
 {
 }
 
-void COokjorContainer::AddLog(const TDesC& aLog)
-{
-}
+
 
 TKeyResponse COokjorContainer::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventCode aType)
 {
 	return EKeyWasNotConsumed;
 }
 
-void COokjorContainer::LoadBitMap()
+
+
+
+void COokjorContainer::SetStateL(const TDesC& aState)
+{
+	if(iStateLabel)
 	{
-/*
-		if(iBitmap==NULL)
-		{
-		TFileName filePath(_L("iclmain.mbm"));
-	    #ifndef __WINS__
-		COokjorAppUi::CompleteWithPrivatePathL(filePath);
-	    #endif
-
-		 iBitmap= new( ELeave )CFbsBitmap;
-	  	 iBitmap->Load( filePath, EMbmIclmainMain, EMbmIclmainMain_mask);
-		}*/
-
-
+		iStateLabel->SetTextL(aState);
 	}
+}
+
+void COokjorContainer::SetStatusL(const TDesC& aState)
+{
+	if(iStatusLabel)
+		iStatusLabel->SetTextL(aState);
+}
+
+void COokjorContainer::SetHintL(const TDesC& aState)
+{
+	if(iHintLabel)
+		iHintLabel->SetTextL(aState);
+}
 

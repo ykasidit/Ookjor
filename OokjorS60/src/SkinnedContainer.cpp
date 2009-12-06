@@ -17,6 +17,8 @@
     along with Ookjor.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+//adapted from http://wiki.forum.nokia.com/index.php/Drawing_skins_in_container
+
 #include "SkinnedContainer.h"
 #include <eikenv.h>
 #include <eikappui.h>
@@ -33,18 +35,16 @@ CSkinnedContainer::~CSkinnedContainer()
 
 void CSkinnedContainer::ConstructL(void)
    {
-    CreateWindowL();
+	//let deriver call createwindow
 
 	// make first with no size at all
 	iBgContext = CAknsBasicBackgroundControlContext::NewL(
 		KAknsIIDQsnBgScreen,TRect(0,0,1,1), ETrue);
 	// Setting rect will cause SizeChanged to be called
 	// and iBgContext size & position is updated accordingly.
-	SetRect(CEikonEnv::Static()->EikAppUi()->ClientRect());
 
-	ActivateL();
-	DrawNow();
-}
+	//let deriver call setrect,activate
+   }
 
 void CSkinnedContainer::SizeChanged()
 {

@@ -97,7 +97,9 @@ gc.SetBrushStyle( CGraphicsContext::ESolidBrush );
 MAknsSkinInstance* skin = AknsUtils::SkinInstance();
 MAknsControlContext* cc = AknsDrawUtils::ControlContext(this);
 
-AknsDrawUtils::Background(skin, cc,this,gc,Rect());
+gc.Clear(aRect);
+
+AknsDrawUtils::Background(skin, cc,this,gc,aRect);
 
 //	TRgb iNormalTextColor;
 //	AknsUtils::GetCachedColor(skin, iNormalTextColor, KAknsIIDQsnTextColors, EAknsCIQsnTextColorsCG6);
@@ -161,4 +163,23 @@ void CScrollRichTextContainer::SizeChanged()
     	iEditor->SetExtent(TPoint(0,0),
     	TSize(rect.Width(), rect.Height()));
     #endif
+    }
+
+void CScrollRichTextContainer::HandleResourceChange( TInt aType )
+    {
+
+	//http://wiki.forum.nokia.com/index.php/How_to_support_layout_switching
+
+    CCoeControl::HandleResourceChange( aType );
+
+    // application layout change request notification
+    if ( aType == KEikDynamicLayoutVariantSwitch )
+        {
+        // reconstruct controls if needed
+
+        // apply new appropriate rect
+        TRect rect;
+        AknLayoutUtils::LayoutMetricsRect( AknLayoutUtils::EMainPane, rect );
+        SetRect( rect );
+        }
     }

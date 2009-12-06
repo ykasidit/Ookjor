@@ -43,21 +43,14 @@ USERINCLUDE	   ..\inc
 
 SOURCE			AboutAppView.cpp
 SOURCE			AboutTextContainer.cpp
-SOURCE			HelpAppView.cpp
-SOURCE			HelpTextContainer.cpp
 SOURCE			Ookjor.cpp
 SOURCE			OokjorApplication.cpp
 SOURCE			OokjorAppUi.cpp
 SOURCE			OokjorAppView.cpp
 SOURCE			OokjorContainer.cpp
-SOURCE			IncallertContainer.cpp
 SOURCE			OokjorDocument.cpp
-SOURCE			OokjorSettingsContainer.cpp
-SOURCE			OokjorSettingsView.cpp
 SOURCE			MyRichTextEditor.cpp
 SOURCE			ScrollRichTextContainer.cpp
-SOURCE			SettingsListSettingItemList.cpp
-SOURCE			SettingsListSettings.cpp
 SOURCE 			SkinnedContainer.cpp
 SOURCE 			BtAdvertiser.cpp
 SOURCE 			BtServer.cpp
@@ -76,7 +69,7 @@ LIBRARY		   commonengine.lib
 LIBRARY		   efsrv.lib
 LIBRARY		   estor.lib
 LIBRARY		   commdb.lib
-LIBRARY        bafl.lib fbscli.lib egul.lib gdi.lib aknskins.lib eikcoctl.lib eikctl.lib etext.lib apgrfx.lib sysutil.lib ws32.lib etel.lib
+LIBRARY        bafl.lib fbscli.lib egul.lib gdi.lib aknskins.lib eikcoctl.lib eikctl.lib etext.lib apgrfx.lib sysutil.lib ws32.lib
 LIBRARY 	   mediaclientaudio.lib
 LIBRARY		   esock.lib bluetooth.lib sdpdatabase.lib btmanclient.lib
 LIBRARY		   centralrepository.lib imageconversion.lib
@@ -87,11 +80,6 @@ LIBRARY   aknskinsrv.lib aknswallpaperutils.lib
 #ifdef EKA2
 LIBRARY   aknicon.lib
 #endif
-
-START BITMAP iclmain.mbm
-HEADER
-source c16,1 ..\main.bmp ..\main_mask.bmp
-END
 
 EPOCSTACKSIZE 0x8000
 
