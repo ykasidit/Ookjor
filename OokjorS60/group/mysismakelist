@@ -11,8 +11,8 @@
 #comment out the s60 ed which you are not using
 
 #s60ed="2nd"
-s60ed="5th"
-#s60ed="3rd"
+#s60ed="5th"
+s60ed="3rd"
 
 #################
 
@@ -36,9 +36,9 @@ fi
 
 if [ "$s60ed" = "3rd" ]; then 
 ###s60 3rd ed config
-unsignedsisname="OokjorS603rd.sis"
-signedsisname="OokjorS603rd.sisx"
-pkgfile3rdEd="OokjorS603rd.pkg"
+unsignedsisname="OokjorS603rdAnd5th.sis"
+signedsisname="OokjorS603rdAnd5th.sisx"
+pkgfile3rdEd="OokjorS603rdAnd5th.pkg"
 cerfile="mycert.cer"
 keyfile="mykey.key"
 signingpassword="0000"

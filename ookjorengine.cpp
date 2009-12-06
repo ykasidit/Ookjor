@@ -36,6 +36,8 @@
 
 #include <errno.h> //errno global var that holds the error cause
 
+#include <QFile>
+
 const int KMaxInBufferLen = 1024*1024*2;
 
 
@@ -291,6 +293,17 @@ void OokjorEngine::CRFCOMMThread::run()
             iFather.iMutex.lock();
          iFather.iLiveSocketToDisconnect = s;
          iFather.iMutex.unlock();
+
+         //write bdaddr to file as prevdev.bdaddr
+          QFile f( "prevdev.bdaddr" );
+          if(f.open(QIODevice::WriteOnly))
+          {
+              QByteArray baddr((const char*) &(addr.rc_bdaddr),6);
+              f.write(baddr);
+              f.close();
+          }
+
+
 
     emit iFather.EngineStatusMessageSignal("Connected, reading first frame...");
     qDebug("presignal state change 0");

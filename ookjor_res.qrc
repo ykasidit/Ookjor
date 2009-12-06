@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/images" >
         <file>ajax-loader.gif</file>
+        <file>mobissori_small.jpg</file>
     </qresource>
 </RCC>

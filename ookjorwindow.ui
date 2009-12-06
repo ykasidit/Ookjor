@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>388</width>
-    <height>462</height>
+    <height>465</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -60,7 +60,7 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Picture of Ookjor on phone</string>
+          <string>[Picture of Ookjor on phone]</string>
          </property>
         </widget>
        </item>
@@ -228,8 +228,8 @@
    <slot>OnMenuAbout()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>68</x>
-     <y>59</y>
+     <x>-1</x>
+     <y>-1</y>
     </hint>
     <hint type="destinationlabel">
      <x>193</x>

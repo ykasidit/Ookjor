@@ -25,6 +25,8 @@
 #include <QTimeLine>
 #include <QGraphicsTextItem>
 #include <QMovie>
+#include <QFile>
+#include <QPicture>
 
 OokjorWindow::OokjorWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::OokjorWindow)
@@ -41,6 +43,10 @@ OokjorWindow::OokjorWindow(QWidget *parent)
     //test load pic
     //iPixmap.load("gnu.jpg");
     /////////////
+
+    QPicture smallss;
+    smallss.load(":/images/mobissori_small.jpg");
+    ui->startPicLabel->setPicture(smallss);
 
    iPixmapItem.setPixmap(iPixmap);
    iScene.addItem(&iPixmapItem);
@@ -133,6 +139,7 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
         ui->connectLoadingLabel->hide();
         ui->connectButton->setText("Connect to Mobile");
         ui->connectButton->setEnabled(true);
+        ui->connectPrevCheckBox->show();
 
         ui->groupBox_1->show();
         ui->groupBox_2->show();
@@ -143,6 +150,8 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
         break;
     case OokjorEngine::EBtSearching:
         ui->groupBox_1->hide();
+
+        ui->connectPrevCheckBox->hide();
 
         ui->connectButton->setEnabled(false);
         ui->connectButton->setText("Please wait...");
@@ -208,7 +217,37 @@ void OokjorWindow::on_startSendButton_clicked()
 {
     //TODO: extract OokjorS603rd5th.sisx from resource
     //check if file exist found or not
-    int ret = system("bluetooth-sendto OokjorS603rd5th.sisx");
+    int ret = system("bluetooth-sendto OokjorS603rdAnd5th.sisx");
     qDebug("bluetooth-sendto exited with %d",ret);
+
+}
+
+void OokjorWindow::on_connectPrevCheckBox_clicked()
+{
+    if(ui->connectPrevCheckBox->isChecked())
+    {
+        iPrevDevAddr.clear();
+
+         QFile f( "prevdev.bdaddr" );
+          if(f.open(QIODevice::ReadOnly))
+          {
+              iPrevDevAddr = f.readAll();
+              f.close();
+          }
+
+       if(iPrevDevAddr.length()==6)
+          {
+            //ok
+          }
+       else
+          {
+            iPrevDevAddr.clear();
+            ui->connectPrevCheckBox->setChecked(false);
+            QMessageBox::information(this, tr("No previous device yet"),tr("No previous device data found"));
+          }
+
+    }
+    else
+        iPrevDevAddr.clear();
 
 }

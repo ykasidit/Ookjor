@@ -58,9 +58,13 @@ private:
 
 
 private slots:
+    void on_connectPrevCheckBox_clicked();
     void on_startSendButton_clicked();
     void on_liveDisconnectButton_clicked();
     void on_connectButton_clicked();
+
+   protected:
+    QByteArray iPrevDevAddr;
 };
 
 #endif // OOKJORWINDOW_H
