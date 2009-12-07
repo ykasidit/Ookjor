@@ -1,12 +1,9 @@
-- fix rare crash on "connect to sdp..."
-
+- mobile show pc screenshot and circle around connect button
 - mobile why black them third label not show
 - mobile lower jpg conv quality/size
-- mobile why first time connect/send obex fails - just show note about that? or try 2 times automatically if first connect returns no read data in 2 seconds - show note on obex
-
-
-- pc smaller buffer sizemax, show in status current buffersize, speed FPS
-- pc show mobile "ready" example pic in step 1
+- mobile why first send obex fails - show note on obex? or make connection to device before obex - make obex feature internally?
+- mobile use bolder font
+- mobile drawnow() to refresh text - not text isn't always redrawn - no text update after connected
 
 - make good pc help
 - make web with lots of pc and mobile screenshots in screenshots section
