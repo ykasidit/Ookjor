@@ -9,7 +9,7 @@ endif
 TARGETDIR=$(ZDIR)\resource\apps
 ICONTARGETFILENAME=$(TARGETDIR)\Ookjor.mif
 
-ICONDIR=..\gfx
+ICONDIR=../gfx
 
 do_nothing :
 	@rem do_nothing

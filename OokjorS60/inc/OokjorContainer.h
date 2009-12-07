@@ -56,6 +56,8 @@ public:
     CEikLabel* iStatusLabel;//press connect on computer, sending frame, etc
     CEikLabel* iHintLabel;//Install on computer from www.ClearEvo.com
 
+    CFbsBitmap* iBitmap;
+    void LoadBitMap();
     };
 
 #endif //

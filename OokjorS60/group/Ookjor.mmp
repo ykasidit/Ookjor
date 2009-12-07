@@ -81,6 +81,11 @@ LIBRARY   aknskinsrv.lib aknswallpaperutils.lib
 LIBRARY   aknicon.lib
 #endif
 
+START BITMAP ookjormain.mbm
+HEADER
+source c16 ..\okjr_combtn.bmp
+END
+
 EPOCSTACKSIZE 0x8000
 
 #ifdef EKA2
@@ -118,4 +123,6 @@ DEBUGGABLE
 //aif for s60 2nd ed
 AIF Ookjor.aif ..\aif Ookjoraif.rss c12 context_pane_icon.bmp context_pane_icon_mask.bmp list_icon.bmp list_icon_mask.bmp
 #endif
+
+
 

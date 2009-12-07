@@ -20,8 +20,8 @@
 #include <uikon.hrh>
 #include <avkon.hrh>
 #include <aknnotewrappers.h>
-
-
+#include <eikenv.h>
+#include <ookjormain.mbg>
 
 COokjorContainer* COokjorContainer::NewL(const TRect& aRect)
     {
@@ -55,23 +55,23 @@ void COokjorContainer::ConstructL(const TRect& aRect)
 	#endif
 
 
+
 	 _LIT(KTextLoading, "Loading...");
+
+	 LoadBitMap();
 
 	 iStateLabel = new (ELeave) CEikLabel;
 	 iStateLabel->SetContainerWindowL( *this );
 	 iStateLabel->SetTextL(KTextLoading);
-	 //////font - http://wiki.forum.nokia.com/index.php/CS000833_-_Setting_font_for_CEikLabel
-	 _LIT(KFontName, "LatinBold12");
-	 const TInt KFontSize = 150;  // Height of the typeface in twips
-	 TFontSpec fontSpec(KFontName, KFontSize);
-	 // Find the nearest available font to the TFontSpec and assign it to CFont
-	 CGraphicsDevice* screenDevice = iEikonEnv->ScreenDevice();
-	 CFont* font;
-	 screenDevice->GetNearestFontInTwips(font, fontSpec);
-	 // Set the font for the label
+	 //////font
+	 {
+	 CFont* font = NULL;
+	 font =  (CFont*) CEikonEnv::Static()->TitleFont();
+	 if(font)
+	 {
 	 iStateLabel->SetFont(font);
-	 // Destroy the font
-	 screenDevice->ReleaseFont(font);
+	 }
+	 }
 	 //////
 	 iStateLabel->OverrideColorL( EColorLabelText, NormalTextColor );
 
@@ -93,7 +93,7 @@ void COokjorContainer::ConstructL(const TRect& aRect)
 	 screenDevice->ReleaseFont(font);
 	 //////
 	 }
-	 iStateLabel->OverrideColorL( EColorLabelText, NormalTextColor );
+	 iStatusLabel->OverrideColorL( EColorLabelText, NormalTextColor );
 
 
 	 iHintLabel = new (ELeave) CEikLabel;
@@ -102,7 +102,7 @@ void COokjorContainer::ConstructL(const TRect& aRect)
 	 {
 	 //////font - http://wiki.forum.nokia.com/index.php/CS000833_-_Setting_font_for_CEikLabel
 	 _LIT(KFontName, "LatinPlain12");
-	 const TInt KFontSize = 135;  // Height of the typeface in twips
+	 const TInt KFontSize = 140;  // Height of the typeface in twips
 	 TFontSpec fontSpec(KFontName, KFontSize);
 	 // Find the nearest available font to the TFontSpec and assign it to CFont
 	 CGraphicsDevice* screenDevice = iEikonEnv->ScreenDevice();
@@ -114,7 +114,7 @@ void COokjorContainer::ConstructL(const TRect& aRect)
 	 screenDevice->ReleaseFont(font);
 	 //////
 	 }
-	 iStatusLabel->OverrideColorL( EColorLabelText,NormalTextColor);
+	 iHintLabel->OverrideColorL( EColorLabelText,NormalTextColor);
 
 
 	SetRect(aRect);
@@ -132,9 +132,9 @@ void COokjorContainer::SizeChanged()
 
 	if(iStateLabel)
 	{
-	iStateLabel->SetExtent(TPoint((w/2)-(iStateLabel->MinimumSize().iWidth/2),h/5), iStateLabel->MinimumSize());
-	iStatusLabel->SetExtent(TPoint((w/2)-(iStatusLabel->MinimumSize().iWidth/2),2*(h/5)), iStatusLabel->MinimumSize());
-	iHintLabel->SetExtent(TPoint((w/2)-(iHintLabel->MinimumSize().iWidth/2),3*(h/5)), iHintLabel->MinimumSize());
+	iStateLabel->SetExtent(TPoint((w/2)-(iStateLabel->MinimumSize().iWidth/2),h/7), iStateLabel->MinimumSize());
+	iStatusLabel->SetExtent(TPoint((w/2)-(iStatusLabel->MinimumSize().iWidth/2),4*(h/7)), iStatusLabel->MinimumSize());
+	iHintLabel->SetExtent(TPoint((w/2)-(iHintLabel->MinimumSize().iWidth/2),6*(h/7)), iHintLabel->MinimumSize());
 	}
 }
 
@@ -145,12 +145,42 @@ TInt COokjorContainer::CountComponentControls() const
 
 COokjorContainer::~COokjorContainer()
 {
+	delete iBitmap;
 }
 
+void COokjorContainer::LoadBitMap()
+	{
+
+		if(iBitmap==NULL)
+		{
+		TFileName filePath(_L("C:\\private\\A000EC71\\ookjormain.mbm"));
+		 iBitmap= new( ELeave )CFbsBitmap;
+	  	 User::LeaveIfError(iBitmap->Load( filePath, EMbmOokjormainOkjr_combtn));
+		}
+
+
+	}
 
 void COokjorContainer::Draw(const TRect& arect) const
     {
 		CSkinnedContainer::Draw(arect);
+
+		if(iBitmap)
+		 {
+			TRect aRect = Rect();
+			CWindowGc& gc = SystemGc();
+				aRect.Width();
+				TPoint p;
+				TSize picsz = iBitmap->SizeInPixels();
+
+				p.iX = aRect.Width() - picsz.iWidth;
+				p.iX/=2;
+
+				p.iY = aRect.Height() - picsz.iHeight;
+				p.iY/=2;
+
+		 	gc.BitBlt(p,iBitmap);
+		 }
     }
 
 CCoeControl* COokjorContainer::ComponentControl(TInt index) const
@@ -177,6 +207,8 @@ TKeyResponse COokjorContainer::OfferKeyEventL(const TKeyEvent& aKeyEvent,TEventC
 {
 	return EKeyWasNotConsumed;
 }
+
+
 
 
 

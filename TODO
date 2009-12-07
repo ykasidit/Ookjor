@@ -1,9 +1,7 @@
-- mobile show pc screenshot and circle around connect button
-- mobile why black them third label not show
-- mobile lower jpg conv quality/size
-- mobile why first send obex fails - show note on obex? or make connection to device before obex - make obex feature internally?
-- mobile use bolder font
-- mobile drawnow() to refresh text - not text isn't always redrawn - no text update after connected
+- mobile better calculated relevant position of bitmap and labels
+- mobile why first connect STILL fails from time to time - which times fials, which time doesn't? show help/notect - DETECT if no data for 2 sec then disc - WHY DISC from PC doesn't work? why must disc by turn mobile BT OFF only? Does this happen on E61?
+
+- mobile why first send obex fails - show note on obex? or make connection to device before obex - make obex feature internally? 5230 firmware issue?
 
 - make good pc help
 - make web with lots of pc and mobile screenshots in screenshots section

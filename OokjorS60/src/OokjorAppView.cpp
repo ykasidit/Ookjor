@@ -142,6 +142,7 @@ void COokjorAppView::DoActivateL(const TVwsViewId& /*aPrevViewId*/,
 		container->SetStatusL(iStatus);
 		container->SetHintL(iHint);
 		container->SizeChanged();
+		container->DrawNow();
 		AppUi()->AddToStackL(iContainer);
     }
 
@@ -175,14 +176,14 @@ void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, 
 			container->SetStatusL(iStatus);
 			container->SetHintL(iHint);
 			container->SizeChanged();
-			//container->DrawNow();
+			container->DrawNow();
 			}
 		}
 			break;
 		case CBtServer::EWaitingComputer:
 		{
-			iState = _L("Waiting computer Ookjor");
-			iStatus = _L("Install/Start on computer");
+			iState = _L("Press \"Connect\" on Computer");
+			iStatus = _L("Ookjor on computer");
 			iHint = _L("Get from www.ClearEvo.com");
 
 			if(container)
@@ -191,7 +192,7 @@ void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, 
 			container->SetStatusL(iStatus);
 			container->SetHintL(iHint);
 			container->SizeChanged();
-			//container->DrawNow();
+			container->DrawNow();
 			}
 		}
 			break;
@@ -213,7 +214,7 @@ void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, 
 			container->SetStatusL(iStatus);
 			container->SetHintL(iHint);
 			container->SizeChanged();
-			//container->DrawNow();
+			container->DrawNow();
 			}
 		}//same handling as EDataSent so DONT BREAK - follow through
 		case CBtServer::EDataSent:
