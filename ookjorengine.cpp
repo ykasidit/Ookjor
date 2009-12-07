@@ -279,16 +279,28 @@ void OokjorEngine::CRFCOMMThread::run()
     // connect to server
     socklen_t addrlen = sizeof(addr);
 
-    emit iFather.EngineStatusMessageSignal("Connecting to Bluetooth device");
+    emit iFather.EngineStatusMessageSignal("Preparing connection stage 1/3...");
     emit iFather.EngineStateChangeSignal(EBtConnectingRFCOMM);
 
     status = ::connect(s, (__const struct sockaddr *)&addr,addrlen );
 
+    ///test fix "first connect read hangs" on some driver versions - so we disconnect first conn above, wait 2 sec, then connect again
+    close(s);
+    emit iFather.EngineStatusMessageSignal("Preparing connection stage 2/3...");
+    qDebug("closed s, sleep 2 sec");
+    s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
+    sleep(2);
+    qDebug("re con s");
+    emit iFather.EngineStatusMessageSignal("Preparing connection stage 3/3...");
+    status = ::connect(s, (__const struct sockaddr *)&addr,addrlen );
+    //////////////
+
     //Read
     if( status == 0 ) {
 
-        qDebug("wait 2 sec before read to make sure mobile accepted connection and fully opened socket"); //otherwise strange blocking read and mobile nondisconnecting issues are observed
+        qDebug("wait 2 sec before read to make sure mobile accepted connection and fully opened its socket"); //otherwise strange blocking read and mobile nondisconnecting issues are observed
         sleep(2);
+
         //no need mutex here because the button to disconnect (that would call close on socket handle iLiveSocketToDisconnect) isn't shown yet
             iFather.iMutex.lock();
          iFather.iLiveSocketToDisconnect = s;
@@ -305,7 +317,7 @@ void OokjorEngine::CRFCOMMThread::run()
 
 
 
-    emit iFather.EngineStatusMessageSignal("Connected, reading first frame...");
+    emit iFather.EngineStatusMessageSignal("Connected");
     qDebug("presignal state change 0");
     emit iFather.EngineStateChangeSignal(EBtConnectionActive);
     qDebug("postsignal state change 0");
