@@ -69,6 +69,9 @@ private slots:
 
     QByteArray iPrevDevAddr;
     QMovie* iAnimGif;
+
+    bool iFirstSendInstaller;
+    bool iFirstConnect;
 };
 
 #endif // OOKJORWINDOW_H

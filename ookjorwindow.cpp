@@ -34,6 +34,9 @@ OokjorWindow::OokjorWindow(QWidget *parent)
     ui->setupUi(this);
     iCOokjorEngine = NULL;
 
+    iFirstSendInstaller = true;
+    iFirstConnect = true;
+
     iCOokjorEngine = new OokjorEngine(this);
 
     QObject::connect(iCOokjorEngine, SIGNAL(EngineStateChangeSignal(int)),this, SLOT (EngineStateChangeSlot(int)));
