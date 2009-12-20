@@ -147,7 +147,7 @@ RESOURCE MENU_PANE r_Ookjor_menu
 
 RESOURCE TBUF r_appver_str
 {
-	buf = "\tOokjor 1.05";
+	buf = "\tOokjor 1.07";
 }
 
 RESOURCE TBUF r_fors60_str

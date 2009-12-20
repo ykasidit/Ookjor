@@ -290,11 +290,12 @@ void OokjorEngine::CRFCOMMThread::run()
     // connect to server
     socklen_t addrlen = sizeof(addr);
 
-    emit iFather.EngineStatusMessageSignal("Preparing connection stage 1/3...");
+    emit iFather.EngineStatusMessageSignal("Preparing connection...");
     emit iFather.EngineStateChangeSignal(EBtConnectingRFCOMM);
 
     status = ::connect(s, (__const struct sockaddr *)&addr,addrlen );
 
+    /* doesn't help, first connection still fails since ubuntu 9.10 - same problem when using bt-sendto
     ///test fix "first connect read hangs" on some driver versions - so we disconnect first conn above, wait 2 sec, then connect again
     close(s);
     emit iFather.EngineStatusMessageSignal("Preparing connection stage 2/3...");
@@ -305,6 +306,8 @@ void OokjorEngine::CRFCOMMThread::run()
     emit iFather.EngineStatusMessageSignal("Preparing connection stage 3/3...");
     status = ::connect(s, (__const struct sockaddr *)&addr,addrlen );
     //////////////
+*/
+    perror("checking conn status");
 
     //Read
     if( status == 0 ) {

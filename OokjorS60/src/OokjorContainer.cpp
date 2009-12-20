@@ -132,9 +132,16 @@ void COokjorContainer::SizeChanged()
 
 	if(iStateLabel)
 	{
-	iStateLabel->SetExtent(TPoint((w/2)-(iStateLabel->MinimumSize().iWidth/2),h/7), iStateLabel->MinimumSize());
-	iStatusLabel->SetExtent(TPoint((w/2)-(iStatusLabel->MinimumSize().iWidth/2),4*(h/7)), iStatusLabel->MinimumSize());
-	iHintLabel->SetExtent(TPoint((w/2)-(iHintLabel->MinimumSize().iWidth/2),6*(h/7)), iHintLabel->MinimumSize());
+		TSize sz;
+		sz = iStateLabel->MinimumSize();
+		sz.iHeight += 5;
+	iStateLabel->SetExtent(TPoint((w/2)-(sz.iWidth/2),h/7), sz);
+	sz = iStatusLabel->MinimumSize();
+			sz.iHeight += 5;
+	iStatusLabel->SetExtent(TPoint((w/2)-(sz.iWidth/2),5*(h/7)), sz);
+	sz = iHintLabel->MinimumSize();
+			sz.iHeight += 5;
+	iHintLabel->SetExtent(TPoint((w/2)-(sz.iWidth/2),6*(h/7)), sz);
 	}
 }
 

@@ -22,7 +22,7 @@
 #include <centralrepository.h> // for CRepository
 #include <btserversdkcrkeys.h> // for KCRUidBluetoothPowerState, KBTPowerState
 #include <btnotifierapi.h> // for KPowerModeSettingNotifierUid
-
+#include <aknnotewrappers.h>
 
 _LIT(KServerTransportName,"RFCOMM");
 
@@ -47,7 +47,7 @@ void CBtServer::StartServerL()
 		CRepository* crep = CRepository::NewLC(KCRUidBluetoothPowerState);
 	    TInt value = 0;
 	    User::LeaveIfError(crep->Get(KBTPowerState, value));
-	    CleanupStack::PopAndDestroy(crep);
+
 
 	    if(value==0) //bt off
 	    {
@@ -61,7 +61,27 @@ void CBtServer::StartServerL()
 	    	    User::WaitForRequest(status);
 	    	    notifier.CancelNotifier(KPowerModeSettingNotifierUid);
 	    	    notifier.Close();
+
+	    	    //if user turns on now, wait for it to be fully on
+	    	    User::After(1500000);
 	    }
+
+
+
+	    //if user not allowed to turn bt off
+	    User::LeaveIfError(crep->Get(KBTPowerState, value));
+	    if(value==0)
+	    {
+	    	 _LIT(msg,"Ookjor needs Bluetooth to work, exiting...");
+	    		        	CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
+	    		        	informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
+	    		        	informationNote->ExecuteLD(msg);
+	    		        	User::Exit(0);
+
+	    }
+
+
+	    CleanupStack::PopAndDestroy(crep);
 
 
 	    User::LeaveIfError(iSocketServer.Connect());
