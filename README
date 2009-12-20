@@ -4,18 +4,27 @@ Purpose
 -------
 Demonstrating/teaching how to use the mobile phone and mobile software to many people at the same time is difficult due to the small screen size.  Ookjor lets you show the mobile screen on a computer screen wirelessly via Bluetooth. You can connect the computer to a projector for an even larger audience. 
 
+
 Requirements
 ------------
 A (Nokia) Series 60 3rd/5th edition phoneSymbian phone, A GNU/Linux computer/notebook with Bluetooth hardware and BlueZ dirver. Tested on Ubuntu 9.10.
 
+
 How to use
 -----------
+1. Download the latest release from http://www.clearevo.com/ookjor
 
-Double click the "Ookjor" program file, or in terminal type ./Ookjor in this directory.
+2. Extract the zip, select the "Ookjor" program file right-click > properties > permissions > check the "allow to execute" checkbox. (or in terminal: chmod +x Ookjor)
 
-You must first install (send to phone in step 1) and run the mobile Ookjor program on your phone, then press "Connect to Mobile" on this computer Ookjor program, select your phone and the mobile screen should start showing after a few seconds.
+3. Double click the "Ookjor" program file, or in terminal: ./Ookjor in this directory.
+
+4. You must first install (send to phone in step 1) and run the mobile Ookjor program on your phone.
+
+5. Press "Connect to Mobile" on this computer Ookjor program, select your phone and the mobile screen should start showing after a few seconds.
+
+
 
 Ookjor is Free Software. Released under the GNU GPL.
 
 Developed by Kasidit Yusuf.
-Please visit the official page on www.ClearEvo.com for more info and source code.
+Please visit the official page on http://www.clearevo.com/ookjor for more info and source code.
