@@ -7,7 +7,9 @@ Demonstrating/teaching how to use the mobile phone and mobile software to many p
 
 Requirements
 ------------
-A (Nokia) Series 60 3rd/5th edition phoneSymbian phone, A GNU/Linux computer/notebook with Bluetooth hardware and BlueZ dirver. Tested on Ubuntu 9.10.
+- A (Nokia) Series 60 3rd/5th edition phoneSymbian phone.
+- A GNU/Linux computer/notebook with Bluetooth hardware and BlueZ dirver. Tested on Ubuntu 9.10.
+- Qt 4 needs to be installed (run in terminal: sudo apt-get install libqtcore4 libqtgui4 )
 
 
 How to use
