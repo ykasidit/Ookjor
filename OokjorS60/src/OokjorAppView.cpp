@@ -47,6 +47,13 @@ COokjorAppView::~COokjorAppView()
 		delete iSSBitmap;
 		delete iImageEncoder;
 		delete iJPGSSBuffer;
+
+		if(iCamera)
+					{
+						iCamera->PowerOff();
+						iCamera->Release();
+					}
+		delete iCamera;
     }
 
 
@@ -97,10 +104,53 @@ void COokjorAppView::ConstructL()
 
 	    iBtServer->StartServerL();
 
+	    TRAPD(err,
+	    iCamera = CCamera::NewL(*this,0,0);
+	    );
+
+	    TBuf<32> buf;
+	    buf.Format(_L("com init err %d"),err);
+	   	        	CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
+	   	        	informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
+	   	        	informationNote->ExecuteLD(buf);
+
+
     }
+
+ void COokjorAppView::HandleEvent(const TECAMEvent &aEvent)
+ {
+
+ }
+ void COokjorAppView::ViewFinderReady(MCameraBuffer &aCameraBuffer, TInt aError)
+ {
+	 delete iImageEncoder;
+	 	delete iJPGSSBuffer;
+	 	iImageEncoder = NULL;
+	 	iJPGSSBuffer = NULL;
+
+	 	TRAPD(err,
+	 	TDesC8* ptr;
+	 	ptr = aCameraBuffer.DataL(0);
+
+	 	if(ptr)
+	 		iJPGSSBuffer = ptr->AllocL();
+	 );
+
+ }
+
+ void COokjorAppView::ImageBufferReady(MCameraBuffer &aCameraBuffer, TInt aError)
+ {
+
+ }
+ void COokjorAppView::VideoBufferReady(MCameraBuffer &aCameraBuffer, TInt aError)
+ {
+
+ }
+
 
 TBool COokjorAppView::TakeScreenshot()
 	{
+
 		if(iScreenDevice->CopyScreenToBitmap( iSSBitmap ) == KErrNone)
 		{
 
@@ -178,6 +228,13 @@ void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, 
 			container->SizeChanged();
 			container->DrawNow();
 			}
+
+			if(iCamera)
+			{
+				iCamera->StopViewFinder();
+				iCamera->PowerOff();
+				iCamera->Release();
+			}
 		}
 			break;
 		case CBtServer::EWaitingComputer:
@@ -216,15 +273,26 @@ void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, 
 			container->SizeChanged();
 			container->DrawNow();
 			}
+			if(iCamera)
+			{
+				iCamera->Reserve();
+				iCamera->PowerOn();
+				TSize sz(640,480);
+				iCamera->StartViewFinderL(CCamera::EFormatJpeg,sz);
+			}
 		}//same handling as EDataSent so DONT BREAK - follow through
 		case CBtServer::EDataSent:
 		{
 			//update frame count
 
 			//take ss, wait for callback, send in callback
-			if(err == KErrNone && TakeScreenshot())
+			if(err == KErrNone)
 			{
-				iBtServer->SendL(*iJPGSSBuffer);
+				if(!iCamera)
+					TakeScreenshot();
+
+				if(iJPGSSBuffer)
+					iBtServer->SendL(*iJPGSSBuffer);
 			}
 			else
 				iBtServer->StopServer();

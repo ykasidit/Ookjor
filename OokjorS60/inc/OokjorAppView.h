@@ -25,6 +25,7 @@
 #include "BtServer.h"
 #include <w32std.h>
 #include <imageconversion.h>
+#include <ecam.h>
 
 class COokjorAppUi;
 class COokjorContainer;
@@ -35,12 +36,19 @@ class CWsClient;
   @discussion An instance of the Application View object for the Ookjor
   example application
   */
-class COokjorAppView :  public CAknView, public MBtServerCaller
+class COokjorAppView :  public CAknView, public MBtServerCaller, public MCameraObserver2
     {
 public:
 
 	////////
 	void OnBtServerStateChanged(CBtServer::TState aState, TInt err, const TDesC& aDesc);
+	/////////
+
+	//////////
+	virtual void HandleEvent(const TECAMEvent &aEvent);
+	virtual void ViewFinderReady(MCameraBuffer &aCameraBuffer, TInt aError);
+	virtual void ImageBufferReady(MCameraBuffer &aCameraBuffer, TInt aError);
+	virtual void VideoBufferReady(MCameraBuffer &aCameraBuffer, TInt aError);
 	/////////
 
 	TUid Id() const;
@@ -77,6 +85,8 @@ public:
 	TBuf<128> iState;
 	TBuf<128> iStatus;
 	TBuf<128> iHint;
+
+	 CCamera *iCamera;
 
     };
 

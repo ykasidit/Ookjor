@@ -24,16 +24,13 @@ TARGETTYPE		exe
 UID		  		0x100039CE 0xA000EC71
 VENDORID	  	0
 SECUREID		0xA000EC71
-CAPABILITY 		LocalServices
+CAPABILITY 		LocalServices UserEnvironment
 #else
 TARGET          Ookjor.app
 TARGETTYPE      app
 targetpath      \system\apps\Ookjor
 UID             0x100039ce 0x2001A3E4
 #endif
-
-
-
 
 SOURCEPATH		..\src
 
@@ -72,7 +69,7 @@ LIBRARY		   commdb.lib
 LIBRARY        bafl.lib fbscli.lib egul.lib gdi.lib aknskins.lib eikcoctl.lib eikctl.lib etext.lib apgrfx.lib sysutil.lib ws32.lib
 LIBRARY 	   mediaclientaudio.lib
 LIBRARY		   esock.lib bluetooth.lib sdpdatabase.lib btmanclient.lib
-LIBRARY		   centralrepository.lib imageconversion.lib
+LIBRARY		   centralrepository.lib imageconversion.lib ecam.lib
 
 //CAknsBasicBackgroundControlContext , MAknsSkinInstance
 LIBRARY   aknskinsrv.lib aknswallpaperutils.lib
