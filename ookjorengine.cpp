@@ -142,12 +142,14 @@ void OokjorEngine::CSearchThread::run()
 
 void OokjorEngine::CSDPThread::run()
 {
-    qDebug("entered sdp run");
+    perror("entered sdp run");
 
     emit iFather.EngineStateChangeSignal(EBtSearchingSDP);
     emit iFather.EngineStatusMessageSignal("Searching device...");
     int channel = -1;
+    iFather.iMutex.lock();
     iFather.iRFCOMMChannel = channel; //set to invalid
+    iFather.iMutex.unlock();
 
             //adjusted from http://people.csail.mit.edu/albert/bluez-intro/x604.html
 
@@ -158,9 +160,9 @@ void OokjorEngine::CSDPThread::run()
             int err;
             bdaddr_t target;
 
-            qDebug("copy bdaddr");
+            perror("copy bdaddr");
             CopyBDADDR(iFather.iDevList[iFather.iSelectedIndex].iAddr, target.b);
-            qDebug("copy bdaddr complete");
+            perror("copy bdaddr complete");
 
             sdp_list_t *response_list = NULL, *search_list, *attrid_list;
             sdp_session_t *session = 0;
@@ -171,9 +173,9 @@ void OokjorEngine::CSDPThread::run()
             if(errno!=0)
             {
             perror("errno not 0 - sdp_connect failed");
-            emit iFather.EngineStatusMessageSignal("Failed to connect to \"previously connected device\"");
-            //iFather.iRFCOMMChannel = channel; already set to invalid above
+            emit iFather.EngineStatusMessageSignal("Failed to connect to \"previously connected device\"");            
             emit iFather.EngineStateChangeSignal(EBtSearchingSDPDone);
+            sdp_close(session);
             return;
             }
 
@@ -243,8 +245,9 @@ void OokjorEngine::CSDPThread::run()
     }
 
     sdp_close(session);
-
+    iFather.iMutex.lock();
     iFather.iRFCOMMChannel = channel;
+    iFather.iMutex.unlock();
     emit iFather.EngineStateChangeSignal(EBtSearchingSDPDone);
 }
 
@@ -284,7 +287,9 @@ void OokjorEngine::CRFCOMMThread::run()
 
     // set the connection parameters (who to connect to)
     addr.rc_family = AF_BLUETOOTH;
-    addr.rc_channel = (uint8_t) 1;
+    iFather.iMutex.lock();
+    addr.rc_channel = (uint8_t) iFather.iRFCOMMChannel; //use the rfcomm channel we got through SDP
+    iFather.iMutex.unlock();
     //str2ba( dest, &addr.rc_bdaddr ); already copied addr above
 
     // connect to server
@@ -299,10 +304,10 @@ void OokjorEngine::CRFCOMMThread::run()
     ///test fix "first connect read hangs" on some driver versions - so we disconnect first conn above, wait 2 sec, then connect again
     close(s);
     emit iFather.EngineStatusMessageSignal("Preparing connection stage 2/3...");
-    qDebug("closed s, sleep 2 sec");
+    perror("closed s, sleep 2 sec");
     s = socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
     sleep(2);
-    qDebug("re con s");
+    perror("re con s");
     emit iFather.EngineStatusMessageSignal("Preparing connection stage 3/3...");
     status = ::connect(s, (__const struct sockaddr *)&addr,addrlen );
     //////////////
@@ -312,7 +317,7 @@ void OokjorEngine::CRFCOMMThread::run()
     //Read
     if( status == 0 ) {
 
-        qDebug("wait 2 sec before read to make sure mobile accepted connection and fully opened its socket"); //otherwise strange blocking read and mobile nondisconnecting issues are observed
+        perror("wait 2 sec before read to make sure mobile accepted connection and fully opened its socket"); //otherwise strange blocking read and mobile nondisconnecting issues are observed
         sleep(2);
 
         //no need mutex here because the button to disconnect (that would call close on socket handle iLiveSocketToDisconnect) isn't shown yet
@@ -332,9 +337,9 @@ void OokjorEngine::CRFCOMMThread::run()
 
 
     emit iFather.EngineStatusMessageSignal("Connected");
-    qDebug("presignal state change 0");
+    perror("presignal state change 0");
     emit iFather.EngineStateChangeSignal(EBtConnectionActive);
-    qDebug("postsignal state change 0");
+    perror("postsignal state change 0");
 
         int bytes_read;
         //uint32_t count=1;
@@ -347,9 +352,9 @@ void OokjorEngine::CRFCOMMThread::run()
         while(true)
         {
             //memset(buf,0,KReadBuffSize);
-            //qDebug("Reading...");
+            //perror("Reading...");
             bytes_read = ::read(s, buf, KReadBuffSize);
-            //qDebug("Read %d bytes",bytes_read);
+            //perror("Read %d bytes",bytes_read);
             if( bytes_read > 0 )
             {
                 /*QString str;
@@ -371,7 +376,7 @@ void OokjorEngine::CRFCOMMThread::run()
 
                 while(true)
                 {
-                    //qDebug("finding jpg in buffer");
+                    //perror("finding jpg in buffer");
 
                     jpgstartindex = jpgbuff.indexOf(qKJpgHeader);
                     jpgendindex = jpgbuff.indexOf(qKJpgFooter);
@@ -381,11 +386,11 @@ void OokjorEngine::CRFCOMMThread::run()
                         QByteArray ajpg = jpgbuff.mid(jpgstartindex,jpgendindex-jpgstartindex);
                         iFather.OnNewJpgData(ajpg);
                         jpgbuff.remove(0,jpgendindex+1);
-                        //qDebug("found jpeg");
+                        //perror("found jpeg");
                     }
                     else
                     {
-                        //qDebug("no more jpeg");
+                        //perror("no more jpeg");
                         break;
                     }
 
@@ -461,7 +466,7 @@ void OokjorEngine::Disconnect()
 {
     qDebug("preparing to close socket handle %d",iLiveSocketToDisconnect);
     close(iLiveSocketToDisconnect); //thise would cause the CRFCOMMThread to quit as it's waiting on read
-    qDebug("closed socket");
+    perror("closed socket");
     iLiveSocketToDisconnect = 0;
 }
 
@@ -492,21 +497,21 @@ void OokjorEngine::StartSDPToSelectedDev(int aSelIndex)
                     //////////////// start sdp search thread
                     if(iThread && iThread->isRunning())
                      {
-                        qDebug("Warning: waiting on scan thread? actually no thread should be active now...");
+                        perror("Warning: waiting on scan thread? actually no thread should be active now...");
                         iThread->wait();
-                        qDebug("wait thread ended");
+                        perror("wait thread ended");
                      }
 
                     //if comes here measn thread has finished
-                    qDebug("deleting iThread");
+                    perror("deleting iThread");
 
                     delete iThread;
                     iThread = NULL;
 
                     iThread = new CSDPThread(*this);
-                    qDebug("created sdp thread");
+                    perror("created sdp thread");
                     iThread->start();
-                    qDebug("started sdp thread");
+                    perror("started sdp thread");
                     emit EngineStateChangeSignal(EBtSearchingSDP);
                     ////////////////
 

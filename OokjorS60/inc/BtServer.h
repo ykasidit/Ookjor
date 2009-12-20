@@ -70,6 +70,8 @@ protected:
 	TUUID 	iUUID;
 	TInt	iServiceChannel;
 
+	TBTSockAddr listeningAddress;
+
 };
 
 class MBtServerCaller

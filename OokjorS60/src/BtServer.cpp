@@ -26,12 +26,14 @@
 
 _LIT(KServerTransportName,"RFCOMM");
 
-CBtServer::CBtServer(MBtServerCaller& aCaller,const TDesC& aSName,const TDesC&  aSDesc, TUUID& aUUID):iBtServerCaller(aCaller),CActive(CActive::EPriorityStandard)
+CBtServer::CBtServer(MBtServerCaller& aCaller,const TDesC& aSName,const TDesC&  aSDesc, TUUID& aUUID):iBtServerCaller(aCaller),CActive(CActive::EPriorityHigh)
 {
-	CActiveScheduler::Add(this);
+
 	iSName = aSName;
 	iSDesc = aSDesc;
 	iUUID = aUUID;
+
+	CActiveScheduler::Add(this);
 };
 
 CBtServer::~CBtServer()
@@ -63,7 +65,7 @@ void CBtServer::StartServerL()
 	    	    notifier.Close();
 
 	    	    //if user turns on now, wait for it to be fully on
-	    	    User::After(1500000);
+	    	    User::After(2000000);
 	    }
 
 
@@ -89,7 +91,7 @@ void CBtServer::StartServerL()
 
 		User::LeaveIfError(iListeningSocket.GetOpt(KRFCOMMGetAvailableServerChannel, KSolBtRFCOMM, iServiceChannel));
 
-		TBTSockAddr listeningAddress;
+
 		listeningAddress.SetPort(iServiceChannel);
 
 		User::LeaveIfError(iListeningSocket.Bind(listeningAddress));
@@ -105,6 +107,10 @@ void CBtServer::StartServerL()
 void CBtServer::StopServer()
 {
 	Cancel();
+
+	if(iAdvertiser)
+		iAdvertiser->UpdateAvailabilityL(EFalse);
+
 	if (iAcceptedSocket.SubSessionHandle() != 0)
 		iAcceptedSocket.Close();
 
@@ -122,7 +128,6 @@ void CBtServer::StopServer()
 void CBtServer::AcceptConnectionsL()
 {
 	iState = EWaitingComputer;
-	iAcceptedSocket.Close();
 	User::LeaveIfError(iAcceptedSocket.Open(iSocketServer));
 	iListeningSocket.Accept(iAcceptedSocket, iStatus);
 	SetActive();
@@ -159,6 +164,9 @@ void CBtServer::RunL()
 					iState = EConnected;
 					if (iStatus.Int() == KErrNone)
 					{
+						/*if(iAdvertiser)
+							iAdvertiser->UpdateAvailabilityL(EFalse); //already engaged*/
+
 						iBtServerCaller.OnBtServerStateChanged(iState,iStatus.Int(),_L("Connected"));
 					}
 					else
