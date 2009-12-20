@@ -168,14 +168,25 @@ void OokjorEngine::CSDPThread::run()
             emit iFather.EngineStatusMessageSignal("Connect to SDP on remote");
             // connect to the SDP server running on the remote machine
             session = sdp_connect( BDADDR_ANY, &target, SDP_RETRY_IF_BUSY );
+            if(errno!=0)
+            {
+            perror("errno not 0 - sdp_connect failed");
+            emit iFather.EngineStatusMessageSignal("Failed to connect to \"previously connected device\"");
+            //iFather.iRFCOMMChannel = channel; already set to invalid above
+            emit iFather.EngineStateChangeSignal(EBtSearchingSDPDone);
+            return;
+            }
 
             // specify the UUID of the application we're searching for
             sdp_uuid128_create( &svc_uuid, &svc_uuid_int );
+            perror("sdp state 1");
             search_list = sdp_list_append( NULL, &svc_uuid );
+            perror("sdp state 2");
 
             // specify that we want a list of all the matching applications' attributes
             uint32_t range = 0x0000ffff;
             attrid_list = sdp_list_append( NULL, &range );
+            perror("sdp state 3");
 
             // get a list of service records that have UUID 0xabcd
             emit iFather.EngineStatusMessageSignal("get a list of service records that has our target UUID");

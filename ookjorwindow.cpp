@@ -212,6 +212,8 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
         ui->statusBar->showMessage("WARNING: UNKNOWN ENGINE STATE");
         break;
     }
+
+   repaint();
 }
 
 void OokjorWindow::OnMenuAbout()
