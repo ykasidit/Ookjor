@@ -10,7 +10,10 @@ A (Nokia) Series 60 3rd/5th edition phoneSymbian phone, A GNU/Linux computer/not
 
 How to use
 -----------
-You must first install and run the mobile Ookjor program on your phone, then press "Connect to Mobile" on your computer, select your phone and the mobile screen should start showing after a few seconds.
+
+Double click the "Ookjor" program file, or in terminal type ./Ookjor in this directory.
+
+You must first install (send to phone in step 1) and run the mobile Ookjor program on your phone, then press "Connect to Mobile" on this computer Ookjor program, select your phone and the mobile screen should start showing after a few seconds.
 
 Ookjor is Free Software. Released under the GNU GPL.
 
