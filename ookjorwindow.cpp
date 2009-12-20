@@ -152,6 +152,7 @@ void OokjorWindow::EngineStatusMessageSlot(QString str)
 {
     ui->statusBar->showMessage(str);
     qDebug(str.toAscii());
+    //repaint();
 }
 
 void OokjorWindow::EngineStateChangeSlot(int aState)
@@ -170,9 +171,9 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
 
         ui->groupBox_1->show();
         ui->groupBox_2->show();
+        adjustSize();
+        //this->adjustSize();
 
-        this->adjustSize();
-        //this->resize(this->minimumSize());
 
         break;
     case OokjorEngine::EBtSearching:
@@ -183,8 +184,9 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
         ui->connectButton->setEnabled(false);
         ui->connectButton->setText("Please wait...");
         ui->connectLoadingLabel->show();
+        adjustSize();
 
-        this->adjustSize();
+        //this->adjustSize();
         //this->resize(this->minimumSize());
         break;
     case OokjorEngine::EBtSelectingPhoneToSDP:
@@ -207,9 +209,10 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
     ui->liveView->show();
     ui->liveDisconnectButton->setEnabled(true);
     ui->liveDisconnectButton->show();
+    adjustSize();
     //this->resize(this->minimumSize());
 
-    this->adjustSize();
+    //this->adjustSize();
         break;
     case OokjorEngine::EBtDisconnected:
 
@@ -219,7 +222,11 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
         break;
     }
 
-   repaint();
+    //this->resize(this->minimumSize());
+    //
+    //update();
+    //repaint();
+    //ui->centralWidget->repaint(ui->centralWidget->rect());
 }
 
 void OokjorWindow::OnMenuAbout()

@@ -529,9 +529,9 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
         {
             if(iDevList.isEmpty())
             {
-                QMessageBox::information(iParentWindow, tr("Ookjor: No nearby Bluetooth devices found"),tr("No nearby Bluetooth devices found.\r\n\r\nPlease install or start (if already installed) the Ookjor mobile program on your phone and try again."));
-                emit EngineStateChangeSignal(EBtIdle);
+                QMessageBox::information(iParentWindow, tr("Ookjor: No nearby Bluetooth devices found"),tr("No nearby Bluetooth devices found.\r\n\r\nPlease install or start (if already installed) the Ookjor mobile program on your phone and try again."));                
                 emit EngineStatusMessageSignal("No nearby Bluetooth devices found");
+                emit EngineStateChangeSignal(EBtIdle);
             }
             else
             {
