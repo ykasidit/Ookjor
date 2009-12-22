@@ -108,11 +108,11 @@ void COokjorAppView::ConstructL()
 	    iCamera = CCamera::NewL(*this,0,0);
 	    );
 
-	    TBuf<32> buf;
+	   /* TBuf<32> buf;
 	    buf.Format(_L("com init err %d"),err);
 	   	        	CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
 	   	        	informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
-	   	        	informationNote->ExecuteLD(buf);
+	   	        	informationNote->ExecuteLD(buf);*/
 
 
     }

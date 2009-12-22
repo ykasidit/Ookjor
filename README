@@ -20,7 +20,8 @@ How to use
 
 3. Double click the "Ookjor" program file, or in terminal: ./Ookjor in this directory.
 
-4. You must first install (send to phone in step 1) and run the mobile Ookjor program on your phone.
+4. You must first install (send to phone in step 1 - "Send installer to phone" button) and run the mobile Ookjor program on your phone. 
+   - If send fails because your system doesn't have "bluetooth-sendto" available, send the installer (OokjorS603rdAnd5th.sisx, in the folder OokjorS60/sis) to phone manually using other methods.
 
 5. Press "Connect to Mobile" on this computer Ookjor program, select your phone and the mobile screen should start showing after a few seconds.
 

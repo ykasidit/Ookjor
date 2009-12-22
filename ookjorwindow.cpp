@@ -251,7 +251,7 @@ void OokjorWindow::on_liveDisconnectButton_clicked()
 
 void OokjorWindow::on_startSendButton_clicked()
 {
-    //TODO: extract OokjorS603rd5th.sisx from resource
+
     //check if file exist found or not
     if(iFirstSendInstaller)
     {
@@ -259,7 +259,7 @@ void OokjorWindow::on_startSendButton_clicked()
     iFirstSendInstaller = false;
     }
 
-    int ret = system("bluetooth-sendto OokjorS603rdAnd5th.sisx");
+    int ret = system("bluetooth-sendto OokjorS60/sis/OokjorS603rdAnd5th.sisx");
     qDebug("bluetooth-sendto exited with %d",ret);
 
 }
