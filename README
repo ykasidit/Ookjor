@@ -14,7 +14,7 @@ Requirements
 
 How to use
 -----------
-1. Download the latest release from http://www.clearevo.com/ookjor
+1. Download the latest release from http://github.com/ykasidit/Ookjor/archives/master
 
 2. Extract the zip, select the "Ookjor" program file right-click > properties > permissions > check the "allow to execute" checkbox. (or in terminal: chmod +x Ookjor)
 
@@ -30,4 +30,4 @@ How to use
 Ookjor is Free Software. Released under the GNU GPL.
 
 Developed by Kasidit Yusuf.
-Please visit the official page on http://www.clearevo.com/ookjor for more info and source code.
+Please visit the official page on http://www.clearevo.com/ookjor for more info.
