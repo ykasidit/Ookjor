@@ -32,7 +32,7 @@ OokjorWindow::OokjorWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::OokjorWindow)
 {
     ui->setupUi(this);
-    iCOokjorEngine = NULL;
+    iCOokjorEngine = NULL;  
 
     iFirstSendInstaller = true;
     iFirstConnect = true;
@@ -104,11 +104,14 @@ void OokjorWindow::GotNewJpgSlot()
 {
 bool loadsuccess = iPixmap.loadFromData(iCOokjorEngine->iNewJpgBuffer,"JPG");
 if(loadsuccess)
-{
+{    
+
 
         //EngineStatusMessageSlot("frame load ok");
-        iPixmapItem.setPixmap(iPixmap);
-        iScene.setSceneRect(iPixmapItem.boundingRect());
+
+    iPixmapItem.setPixmap(iPixmap);
+    iScene.setSceneRect(iPixmapItem.boundingRect());
+
         //ui->liveView->update();
 
     }
@@ -161,7 +164,7 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
     {
     case OokjorEngine::EBtIdle:
 
-        ui->liveView->hide();
+        ui->liveWidget->hide();
         ui->liveDisconnectButton->hide();
 
         ui->connectLoadingLabel->hide();
@@ -206,7 +209,7 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
         ui->groupBox_2->hide();
 
     //ui->textBrowser->hide();
-    ui->liveView->show();
+    ui->liveWidget->show();
     ui->liveDisconnectButton->setEnabled(true);
     ui->liveDisconnectButton->show();
     adjustSize();

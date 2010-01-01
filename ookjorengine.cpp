@@ -18,7 +18,6 @@
 */
 
 #include "ookjorengine.h"
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -300,7 +299,9 @@ void OokjorEngine::CRFCOMMThread::run()
 
     status = ::connect(s, (__const struct sockaddr *)&addr,addrlen );
 
-    /* doesn't help, first connection still fails since ubuntu 9.10 - same problem when using bt-sendto
+    /* THAT ISSUE WAS FIXED - all about not using the sdp found rfcomm channel when connecting rfcomm
+
+    doesn't help, first connection still fails since ubuntu 9.10 - same problem when using bt-sendto
     ///test fix "first connect read hangs" on some driver versions - so we disconnect first conn above, wait 2 sec, then connect again
     close(s);
     emit iFather.EngineStatusMessageSignal("Preparing connection stage 2/3...");
@@ -317,8 +318,8 @@ void OokjorEngine::CRFCOMMThread::run()
     //Read
     if( status == 0 ) {
 
-        perror("wait 2 sec before read to make sure mobile accepted connection and fully opened its socket"); //otherwise strange blocking read and mobile nondisconnecting issues are observed
-        sleep(2);
+        //perror("wait 2 sec before read to make sure mobile accepted connection and fully opened its socket"); //otherwise strange blocking read and mobile nondisconnecting issues are observed
+        //sleep(2);
 
         //no need mutex here because the button to disconnect (that would call close on socket handle iLiveSocketToDisconnect) isn't shown yet
             iFather.iMutex.lock();
