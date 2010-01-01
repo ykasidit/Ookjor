@@ -129,7 +129,7 @@ void OokjorWindow::on_connectButton_clicked()
 {
       if(iFirstConnect)
     {
-    QMessageBox::information(this, tr("If this connect fails..."),tr("On some versions of BlueZ (bluetooth driver that comes with Ubuntu 9.10)\r\nTHE FIRST CONNECT MIGHT NOT SHOW PHONE SCREEN, if so:\r\n 1. Turn-off phone's bluetooth,\r\n 2. Exit phone Ookjor program.\r\n 3. Start phone Ookjor program again and let it turn on the bluetooth.\r\n 4. Press Connect here again."));
+    //doesn't happen anymore, it's probably related to the sdp channel not used bug that was fixed QMessageBox::information(this, tr("If this connect fails..."),tr("On some versions of BlueZ (bluetooth driver that comes with Ubuntu 9.10)\r\nTHE FIRST CONNECT MIGHT NOT SHOW PHONE SCREEN, if so:\r\n 1. Turn-off phone's bluetooth,\r\n 2. Exit phone Ookjor program.\r\n 3. Start phone Ookjor program again and let it turn on the bluetooth.\r\n 4. Press Connect here again."));
     iFirstConnect = false;
     }
 

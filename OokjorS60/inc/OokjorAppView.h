@@ -36,19 +36,23 @@ class CWsClient;
   @discussion An instance of the Application View object for the Ookjor
   example application
   */
-class COokjorAppView :  public CAknView, public MBtServerCaller, public MCameraObserver2
+class COokjorAppView :  public CAknView, public MBtServerCaller, public MCameraObserver
     {
 public:
+
+	static COokjorAppView* curInstance;
 
 	////////
 	void OnBtServerStateChanged(CBtServer::TState aState, TInt err, const TDesC& aDesc);
 	/////////
 
 	//////////
-	virtual void HandleEvent(const TECAMEvent &aEvent);
-	virtual void ViewFinderReady(MCameraBuffer &aCameraBuffer, TInt aError);
-	virtual void ImageBufferReady(MCameraBuffer &aCameraBuffer, TInt aError);
-	virtual void VideoBufferReady(MCameraBuffer &aCameraBuffer, TInt aError);
+	virtual void FrameBufferReady(MFrameBuffer *,TInt); //Passes a filled frame buffer to the client.
+	virtual void ImageReady(CFbsBitmap *,HBufC8 *,TInt);//Transfers the current image from the camera to the client.
+	virtual void ViewFinderFrameReady(CFbsBitmap &);//Tests whether transfer of view finder data has completed.
+
+	virtual void ReserveComplete(TInt aError);
+	virtual void PowerOnComplete(TInt aError);
 	/////////
 
 	TUid Id() const;
@@ -76,17 +80,21 @@ public:
 	TUid iId;
 
 	TBool TakeScreenshot();
+	void CleanupCamera();
 
 	CWsScreenDevice* iScreenDevice;
 	CFbsBitmap* iSSBitmap;
 	CImageEncoder* iImageEncoder;
 	HBufC8* iJPGSSBuffer;
+	HBufC8* iJPGCamBuffer;
 
 	TBuf<128> iState;
 	TBuf<128> iStatus;
 	TBuf<128> iHint;
 
 	 CCamera *iCamera;
+
+
 
     };
 

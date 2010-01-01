@@ -28,32 +28,32 @@
 #include "Ookjor.hrh"
 #include "OokjorContainer.h"
 //#include "IncallertContainer.h"
-
+#include <aknnotewrappers.h>
 #include "OokjorAppView.h"
 
 
 
-
+COokjorAppView* COokjorAppView::curInstance = NULL;
 
 COokjorAppView::COokjorAppView(COokjorAppUi *ui)
     {
 		iId = TUid::Uid(ENavigationPaneStatusViewId);
 		appui = ui;
+		curInstance = this;
+
     }
 
 COokjorAppView::~COokjorAppView()
     {
+		curInstance = NULL;
+
 		delete iContainer; //just in case
 		delete iSSBitmap;
 		delete iImageEncoder;
 		delete iJPGSSBuffer;
+		delete iJPGCamBuffer;
 
-		if(iCamera)
-					{
-						iCamera->PowerOff();
-						iCamera->Release();
-					}
-		delete iCamera;
+		CleanupCamera();
     }
 
 
@@ -105,47 +105,102 @@ void COokjorAppView::ConstructL()
 	    iBtServer->StartServerL();
 
 	    TRAPD(err,
-	    iCamera = CCamera::NewL(*this,0,0);
+	    iCamera = CCamera::NewL(*this,0);
 	    );
 
-	   /* TBuf<32> buf;
-	    buf.Format(_L("com init err %d"),err);
+	    if(!iCamera)
+	    {
+	    TBuf<32> buf;
+	    buf.Format(_L("camera init err %d"),err);
 	   	        	CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
 	   	        	informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
-	   	        	informationNote->ExecuteLD(buf);*/
+	   	        	informationNote->ExecuteLD(buf);
+	    }
 
 
     }
 
- void COokjorAppView::HandleEvent(const TECAMEvent &aEvent)
+void COokjorAppView::CleanupCamera()
+{
+	if(iCamera)
+	{
+		iCamera->PowerOff();
+		iCamera->Release();
+	}
+	delete iCamera;
+	iCamera = NULL;
+	delete iJPGCamBuffer;
+	iJPGCamBuffer = NULL;
+}
+
+void COokjorAppView::ReserveComplete(TInt err)
+{
+
+	if(err == KErrNone)
+	{
+
+		 iCamera->PowerOn();
+	}
+	else
+	{
+		TBuf<32> buf;
+		buf.Format(_L("camera reserve err %d"),err);
+		CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
+		informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
+		informationNote->ExecuteLD(buf);
+		CleanupCamera();
+	}
+}
+
+void COokjorAppView::PowerOnComplete(TInt err)
+{
+
+	if(err == KErrNone)
+	{
+
+		TSize sz(640,480);
+		iCamera->StartViewFinderBitmapsL(sz);
+	}
+	else
+	{
+		TBuf<32> buf;
+		buf.Format(_L("camera power on err %d"),err);
+		CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
+		informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
+		informationNote->ExecuteLD(buf);
+		CleanupCamera();
+	}
+}
+
+
+
+
+
+
+ void COokjorAppView::ViewFinderFrameReady(CFbsBitmap &aFrame)
  {
 
- }
- void COokjorAppView::ViewFinderReady(MCameraBuffer &aCameraBuffer, TInt aError)
- {
-	 delete iImageEncoder;
-	 	delete iJPGSSBuffer;
-	 	iImageEncoder = NULL;
-	 	iJPGSSBuffer = NULL;
 
-	 	TRAPD(err,
-	 	TDesC8* ptr;
-	 	ptr = aCameraBuffer.DataL(0);
 
-	 	if(ptr)
-	 		iJPGSSBuffer = ptr->AllocL();
-	 );
+					delete iImageEncoder;
+					delete iJPGCamBuffer;
+					iImageEncoder = NULL;
+					iJPGCamBuffer = NULL;
 
- }
 
- void COokjorAppView::ImageBufferReady(MCameraBuffer &aCameraBuffer, TInt aError)
- {
+
+					TRAPD(err,
+
+					iImageEncoder = CImageEncoder::DataNewL(iJPGCamBuffer,CImageEncoder::EOptionAlwaysThread,KImageTypeJPGUid);
+					TRequestStatus status;
+					iImageEncoder->Convert(&status,aFrame);
+					User::WaitForRequest(status);
+		 );
 
  }
- void COokjorAppView::VideoBufferReady(MCameraBuffer &aCameraBuffer, TInt aError)
- {
 
- }
+void COokjorAppView::FrameBufferReady(MFrameBuffer *,TInt){} //Passes a filled frame buffer to the client.
+void COokjorAppView::ImageReady(CFbsBitmap *,HBufC8 *,TInt){} //Transfers the current image from the camera to the client.
 
 
 TBool COokjorAppView::TakeScreenshot()
@@ -154,15 +209,22 @@ TBool COokjorAppView::TakeScreenshot()
 		if(iScreenDevice->CopyScreenToBitmap( iSSBitmap ) == KErrNone)
 		{
 
+
 			delete iImageEncoder;
 			delete iJPGSSBuffer;
 			iImageEncoder = NULL;
 			iJPGSSBuffer = NULL;
 
-			iImageEncoder = CImageEncoder::DataNewL(iJPGSSBuffer,CImageEncoder::EOptionAlwaysThread,KImageTypeJPGUid);
 			TRequestStatus status;
+
+			TRAPD(err,
+			iImageEncoder = CImageEncoder::DataNewL(iJPGSSBuffer,CImageEncoder::EOptionAlwaysThread,KImageTypeJPGUid);
 			iImageEncoder->Convert(&status,*iSSBitmap);
 			User::WaitForRequest(status);
+			);
+
+
+
 			if(status.Int()==KErrNone)
 				return ETrue;
 			else
@@ -200,7 +262,6 @@ void COokjorAppView::DoDeactivate()
     {
        if (iContainer)
         {
-
 	    AppUi()->RemoveFromStack(iContainer);
         delete iContainer;
         iContainer = NULL;
@@ -217,6 +278,10 @@ void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, 
 	{
 		case CBtServer::EIdle:
 		{
+
+
+			CleanupCamera();
+
 			iState = _L("Starting up...");
 			iStatus = _L("Please wait...");
 			iHint = _L("Please wait...");
@@ -263,7 +328,7 @@ void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, 
 		case CBtServer::EConnected:
 		{
 			iState = _L("Connected");
-			iStatus = _L("Streaming screen to computer...");
+			iStatus = _L("Streaming to computer...");
 			iHint = _L("Ookjor by www.ClearEvo.com");
 			if(container)
 			{
@@ -276,11 +341,20 @@ void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, 
 			if(iCamera)
 			{
 				iCamera->Reserve();
-				iCamera->PowerOn();
-				TSize sz(640,480);
-				iCamera->StartViewFinderL(CCamera::EFormatJpeg,sz);
 			}
-		}//same handling as EDataSent so DONT BREAK - follow through
+			else
+			{
+
+			 	CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
+				   	        	informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
+				   	        	informationNote->ExecuteLD(_L("no camera"));
+			}
+
+			TakeScreenshot(); //first frame init for cam case
+
+		}
+		//CONTINUE to same handling as EDataSent so DONT BREAK - follow through
+
 		case CBtServer::EDataSent:
 		{
 			//update frame count
@@ -288,11 +362,38 @@ void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, 
 			//take ss, wait for callback, send in callback
 			if(err == KErrNone)
 			{
-				if(!iCamera)
+				if(!iCamera) //camera power on may not be ready yet, so export screen in the mean time, so user can also notice that this app can export screen too
+				{
+					CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
+					informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
+					informationNote->ExecuteLD(_L("no cam2"));
 					TakeScreenshot();
 
-				if(iJPGSSBuffer)
+					if(iJPGSSBuffer)
+										{
+										TRAPD(err,
+										iBtServer->SendL(*iJPGSSBuffer);
+										);
+										}
+				}
+				else
+				{
+
+					if(iJPGCamBuffer && iJPGSSBuffer)
+					{
+						delete iJPGSSBuffer;
+						iJPGSSBuffer = NULL;
+
+						iJPGSSBuffer = iJPGCamBuffer->AllocL();
+					}
+
+					if(iJPGSSBuffer)
+					{
+					TRAPD(err,
 					iBtServer->SendL(*iJPGSSBuffer);
+					);
+					}
+				}
 			}
 			else
 				iBtServer->StopServer();
