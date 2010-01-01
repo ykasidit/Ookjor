@@ -69,7 +69,8 @@ LIBRARY		   commdb.lib
 LIBRARY        bafl.lib fbscli.lib egul.lib gdi.lib aknskins.lib eikcoctl.lib eikctl.lib etext.lib apgrfx.lib sysutil.lib ws32.lib
 LIBRARY 	   mediaclientaudio.lib
 LIBRARY		   esock.lib bluetooth.lib sdpdatabase.lib btmanclient.lib
-LIBRARY		   centralrepository.lib imageconversion.lib ecam.lib
+LIBRARY		   centralrepository.lib imageconversion.lib ecam.lib 
+STATICLIBRARY  CamAutoFocus_s.lib
 
 //CAknsBasicBackgroundControlContext , MAknsSkinInstance
 LIBRARY   aknskinsrv.lib aknswallpaperutils.lib

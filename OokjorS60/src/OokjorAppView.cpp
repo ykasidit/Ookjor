@@ -17,6 +17,11 @@
     along with Ookjor.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+ *
+ * NOTE: the autofocus, capture related code are just added to plan for future dev, THEY ARE NOT USED NOW
+ * */
+
 
 #include <eikenv.h>
 #include <coemain.h>
@@ -47,13 +52,15 @@ COokjorAppView::~COokjorAppView()
     {
 		curInstance = NULL;
 
+		iBtState = CBtServer::EIdle; //so CleanupCamera() wont try to update screen or icontainers
+		CleanupCamera();
+
 		delete iContainer; //just in case
 		delete iSSBitmap;
 		delete iImageEncoder;
 		delete iJPGSSBuffer;
 		delete iJPGCamBuffer;
 
-		CleanupCamera();
     }
 
 
@@ -80,6 +87,46 @@ COokjorAppView* COokjorAppView::NewLC(COokjorAppUi* ui)
 	    return self;
     }
 
+void COokjorAppView::UpdateStatus(const TDesC& status)
+{
+		iStatus = status;
+		COokjorContainer* container = (COokjorContainer*) iContainer;
+		if(container)
+		{
+		container->SetStatusL(iStatus);
+		container->SizeChanged();
+		container->DrawNow();
+		}
+}
+
+void COokjorAppView::StartCamera()
+	{
+
+		CleanupCamera();
+
+	 TRAPD(err,
+		    iCamera = CCamera::NewL(*this,0);
+			 iCamera->CameraInfo(iInfo);
+			 TRAPD(afErr, iAutoFocus = CCamAutoFocus::NewL( iCamera ));
+		    );
+
+		    if(!iCamera)
+		    {
+		    TBuf<32> buf;
+		    buf.Format(_L("Can't start camera: error %d"),err);
+		   	        	CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
+		   	        	informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
+		   	        	informationNote->ExecuteLD(buf);
+		    }
+		    else
+		    {
+		    	if(iBtState > CBtServer::EConnected) //if already connected but in background mode, start camera loop too
+		    	{
+		    		UpdateStatus(_L("Resuming Camera Mode"));
+		    		iCamera->Reserve();
+		    	}
+		    }
+	}
 
 void COokjorAppView::ConstructL()
     {
@@ -104,18 +151,6 @@ void COokjorAppView::ConstructL()
 
 	    iBtServer->StartServerL();
 
-	    TRAPD(err,
-	    iCamera = CCamera::NewL(*this,0);
-	    );
-
-	    if(!iCamera)
-	    {
-	    TBuf<32> buf;
-	    buf.Format(_L("camera init err %d"),err);
-	   	        	CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
-	   	        	informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
-	   	        	informationNote->ExecuteLD(buf);
-	    }
 
 
     }
@@ -124,13 +159,30 @@ void COokjorAppView::CleanupCamera()
 {
 	if(iCamera)
 	{
+		iCamera->StopViewFinder();
 		iCamera->PowerOff();
+
+		if(iAutoFocus)
+		{
+		// bring AF subsystem to idle
+		TRAPD( ignore, iAutoFocus->ResetToIdleL() );
+		iAutoFocus->Close();
+		}
+
 		iCamera->Release();
 	}
 	delete iCamera;
 	iCamera = NULL;
 	delete iJPGCamBuffer;
 	iJPGCamBuffer = NULL;
+
+	delete iAutoFocus;
+	iAutoFocus = NULL;
+
+	if(iBtState > CBtServer::EConnected)
+	{
+		UpdateStatus(_L("Streaming mobile screen"));
+	}
 }
 
 void COokjorAppView::ReserveComplete(TInt err)
@@ -138,7 +190,7 @@ void COokjorAppView::ReserveComplete(TInt err)
 
 	if(err == KErrNone)
 	{
-
+		UpdateStatus(_L("Starting Camera"));
 		 iCamera->PowerOn();
 	}
 	else
@@ -152,14 +204,91 @@ void COokjorAppView::ReserveComplete(TInt err)
 	}
 }
 
+CCamera::TFormat COokjorAppView::ImageFormatMax() const
+    {
+    if ( iInfo.iImageFormatsSupported & CCamera::EFormatFbsBitmapColor16M )
+        {
+        return CCamera::EFormatFbsBitmapColor16M;
+        }
+    else if ( iInfo.iImageFormatsSupported & CCamera::EFormatFbsBitmapColor64K)
+        {
+        return CCamera::EFormatFbsBitmapColor64K;
+        }
+    else
+        {
+        return CCamera::EFormatFbsBitmapColor4K;
+        }
+    }
+
+
+
+////////auto focus
+void COokjorAppView::InitComplete( TInt aError )
+{
+
+}
+
+void COokjorAppView::OptimisedFocusComplete( TInt aError )
+{
+
+}
+///////////////
+
 void COokjorAppView::PowerOnComplete(TInt err)
 {
 
 	if(err == KErrNone)
 	{
+		if( iAutoFocus )
+		            {
+						TRAPD( afErr, iAutoFocus->InitL( *this ) );
+						if(afErr!=KErrNone)
+						{
+							delete iAutoFocus;
+							iAutoFocus = NULL;
+						}
+		            }
 
-		TSize sz(640,480);
-		iCamera->StartViewFinderBitmapsL(sz);
+		UpdateStatus(_L("Streaming camera view"));
+
+		//see http://www.forum.nokia.com/info/sw.nokia.com/id/a1440080-11f2-4462-bc44-9c88a5a11482/S60_Platform_Camera_Example_with_AutoFocus_Support_v2_1_en.zip.html
+
+		const TInt KImageSizeIndex = 1;
+
+		 iCamera->SetExposureL();
+
+//		    TRAPD(ignore, iCamera->SetDigitalZoomFactorL( iZoomFactor ));
+
+
+		    if ( iInfo.iOptionsSupported & TCameraInfo::EViewFinderBitmapsSupported )
+		        {
+		        if ( iInfo.iOptionsSupported & TCameraInfo::EImageCaptureSupported)
+		            {
+		            iFormat = CCamera::EFormatExif;
+		            TRAPD(exifErr, iCamera->PrepareImageCaptureL(iFormat, KImageSizeIndex));
+		            if(exifErr) // capturing in EXIF format not supported,
+		                        // fall back to bitmap format
+		                {
+		                iFormat = ImageFormatMax();
+		                iCamera->PrepareImageCaptureL(iFormat, 1);
+		                }
+		            else    // notify controller that we're using EXIF capture mode
+		                {
+		                iCamera->EnumerateCaptureSizes( iCaptureSize, KImageSizeIndex,
+		                                               iFormat );
+		                }
+
+
+		            }
+		        }
+
+		    TSize sz = ClientRect().Size();
+		    iCamera->StartViewFinderBitmapsL( sz );
+
+		    //iCamera->CaptureImage();
+
+		//TSize sz(640,480);
+		//iCamera->StartViewFinderBitmapsL(sz);
 	}
 	else
 	{
@@ -190,7 +319,6 @@ void COokjorAppView::PowerOnComplete(TInt err)
 
 
 					TRAPD(err,
-
 					iImageEncoder = CImageEncoder::DataNewL(iJPGCamBuffer,CImageEncoder::EOptionAlwaysThread,KImageTypeJPGUid);
 					TRequestStatus status;
 					iImageEncoder->Convert(&status,aFrame);
@@ -200,7 +328,46 @@ void COokjorAppView::PowerOnComplete(TInt err)
  }
 
 void COokjorAppView::FrameBufferReady(MFrameBuffer *,TInt){} //Passes a filled frame buffer to the client.
-void COokjorAppView::ImageReady(CFbsBitmap *,HBufC8 *,TInt){} //Transfers the current image from the camera to the client.
+void COokjorAppView::ImageReady(CFbsBitmap *aBitmap,HBufC8 *aData,TInt aError)
+{
+
+	    if ( aError == KErrNone )
+	        {
+	        if( iFormat == CCamera::EFormatExif )
+	            {
+	            if ( iJPGCamBuffer )
+	                {
+	                delete iJPGCamBuffer;
+	                iJPGCamBuffer = 0;
+	                }
+
+					if(aData)
+						iJPGCamBuffer = aData->Alloc();
+	            }
+	        else
+	            {
+
+	        	if(aBitmap)
+	        	{
+					delete iImageEncoder;
+					delete iJPGCamBuffer;
+					iImageEncoder = NULL;
+					iJPGCamBuffer = NULL;
+
+
+
+					TRAPD(err,
+					iImageEncoder = CImageEncoder::DataNewL(iJPGCamBuffer,CImageEncoder::EOptionAlwaysThread,KImageTypeJPGUid);
+					TRequestStatus status;
+					iImageEncoder->Convert(&status,*aBitmap);
+					User::WaitForRequest(status);
+					);
+	        	}
+
+	            }
+	        }
+
+} //Transfers the current image from the camera to the client.
 
 
 TBool COokjorAppView::TakeScreenshot()
@@ -274,6 +441,7 @@ void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, 
 	COokjorContainer* container = (COokjorContainer*) iContainer;
 
 
+	iBtState = aState;
 	switch(aState)
 	{
 		case CBtServer::EIdle:
@@ -340,14 +508,14 @@ void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, 
 			}
 			if(iCamera)
 			{
-				iCamera->Reserve();
+				iCamera->Reserve(); //starts the whole camera loop
 			}
 			else
 			{
 
 			 	CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
 				   	        	informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
-				   	        	informationNote->ExecuteLD(_L("no camera"));
+				   	        	informationNote->ExecuteLD(_L("No camera, using Screen Export mode"));
 			}
 
 			TakeScreenshot(); //first frame init for cam case
@@ -364,17 +532,14 @@ void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, 
 			{
 				if(!iCamera) //camera power on may not be ready yet, so export screen in the mean time, so user can also notice that this app can export screen too
 				{
-					CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
-					informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
-					informationNote->ExecuteLD(_L("no cam2"));
 					TakeScreenshot();
 
 					if(iJPGSSBuffer)
-										{
-										TRAPD(err,
-										iBtServer->SendL(*iJPGSSBuffer);
-										);
-										}
+						{
+						TRAPD(err,
+						iBtServer->SendL(*iJPGSSBuffer);
+						);
+						}
 				}
 				else
 				{
@@ -384,7 +549,7 @@ void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, 
 						delete iJPGSSBuffer;
 						iJPGSSBuffer = NULL;
 
-						iJPGSSBuffer = iJPGCamBuffer->AllocL();
+						iJPGSSBuffer = iJPGCamBuffer->Alloc();
 					}
 
 					if(iJPGSSBuffer)

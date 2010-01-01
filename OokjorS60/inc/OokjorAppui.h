@@ -83,7 +83,7 @@ public:
     }
 
 void HandleWsEventL(const TWsEvent &aEvent, CCoeControl *aDestination);//handle red-key press
-
+void HandleForegroundEventL(TBool afg);
 
 public: // from CAknAppUi
 /*!

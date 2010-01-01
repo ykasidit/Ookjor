@@ -26,6 +26,7 @@
 #include <w32std.h>
 #include <imageconversion.h>
 #include <ecam.h>
+#include <CCamAutoFocus.h>
 
 class COokjorAppUi;
 class COokjorContainer;
@@ -36,7 +37,7 @@ class CWsClient;
   @discussion An instance of the Application View object for the Ookjor
   example application
   */
-class COokjorAppView :  public CAknView, public MBtServerCaller, public MCameraObserver
+class COokjorAppView :  public CAknView, public MBtServerCaller, public MCameraObserver, public MCamAutoFocusObserver
     {
 public:
 
@@ -53,6 +54,9 @@ public:
 
 	virtual void ReserveComplete(TInt aError);
 	virtual void PowerOnComplete(TInt aError);
+
+	 virtual void InitComplete( TInt aError );
+     virtual void OptimisedFocusComplete( TInt aError );
 	/////////
 
 	TUid Id() const;
@@ -69,6 +73,10 @@ public:
 
 	void DialogDismissedL(TInt aButtonId);//MProgressDialogCallback
 
+	void CleanupCamera();
+	void StartCamera();
+	void UpdateStatus(const TDesC& status);
+
 	protected:
 	COokjorAppUi *appui;
 	CCoeControl *iContainer;
@@ -80,7 +88,8 @@ public:
 	TUid iId;
 
 	TBool TakeScreenshot();
-	void CleanupCamera();
+
+	CCamera::TFormat ImageFormatMax() const;
 
 	CWsScreenDevice* iScreenDevice;
 	CFbsBitmap* iSSBitmap;
@@ -93,7 +102,17 @@ public:
 	TBuf<128> iHint;
 
 	 CCamera *iCamera;
+	 TCameraInfo iInfo;
+	 CCamera::TFormat iFormat;
+	 TSize iCaptureSize;
+     TInt iCaptureFormat;
+     CCamAutoFocus* iAutoFocus;
 
+	 CBtServer::TState iBtState;// so StartCamera would know if app is in connected state or not, if connected then it would stat reserve, power on, etc.
+
+	 void SetCaptureModeL(const TSize& aSize,
+	                                            TInt aFormat,
+	                                            TBool aAFSupported);
 
 
     };

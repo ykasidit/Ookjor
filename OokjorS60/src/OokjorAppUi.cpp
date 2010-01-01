@@ -93,6 +93,20 @@ COokjorAppUi::~COokjorAppUi()
 
     }
 
+void COokjorAppUi::HandleForegroundEventL(TBool afg)
+{
+	if(afg)
+	{
+		if(iAppView)
+			((COokjorAppView*)iAppView)->StartCamera();
+	}
+	else
+	{
+		if(iAppView)
+			((COokjorAppView*)iAppView)->CleanupCamera();
+	}
+}
+
 
  void COokjorAppUi::HandleCommandL(TInt aCommand)
     {
