@@ -26,7 +26,7 @@
 #include <QGraphicsTextItem>
 #include <QMovie>
 #include <QFile>
-
+ #include <QFileInfo>
 
 OokjorWindow::OokjorWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::OokjorWindow)
@@ -36,6 +36,9 @@ OokjorWindow::OokjorWindow(QWidget *parent)
 
     iFirstSendInstaller = true;
     iFirstConnect = true;
+
+
+    qDebug(QCoreApplication::argv()[0]);
 
     iCOokjorEngine = new OokjorEngine(this);
 
@@ -262,7 +265,12 @@ void OokjorWindow::on_startSendButton_clicked()
     iFirstSendInstaller = false;
     }
 
-    int ret = system("bluetooth-sendto OokjorS60/sis/OokjorS603rdAnd5th.sisx");
+    QString cmd;
+    cmd = "bluetooth-sendto ";
+    cmd += QFileInfo( QCoreApplication::argv()[0] ).absolutePath();
+    cmd += "/OokjorS60/sis/OokjorS603rdAnd5th.sisx";
+    qDebug(cmd.toAscii());
+    int ret = system(cmd.toAscii());
     qDebug("bluetooth-sendto exited with %d",ret);
 
 }
@@ -313,4 +321,15 @@ void OokjorWindow::on_connectPrevCheckBox_clicked()
         iPrevDevAddr.clear();
     }
 
+}
+
+
+void OokjorWindow::on_pushButton_2_clicked()
+{
+    ui->liveView->scale(1.1,1.1);
+}
+
+void OokjorWindow::on_pushButton_clicked()
+{
+    ui->liveView->scale(1/1.1,1/1.1);
 }

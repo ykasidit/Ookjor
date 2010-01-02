@@ -59,6 +59,8 @@ private:
 
 
 private slots:
+    void on_pushButton_clicked();
+    void on_pushButton_2_clicked();
     void on_connectPrevCheckBox_clicked();
     void on_startSendButton_clicked();
     void on_liveDisconnectButton_clicked();
@@ -72,6 +74,8 @@ private slots:
 
     bool iFirstSendInstaller;
     bool iFirstConnect;
+
+
 };
 
 #endif // OOKJORWINDOW_H

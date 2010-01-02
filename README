@@ -1,32 +1,56 @@
-*Ookjor*
+
+Ookjor mobile bluetooth camera software
+=======================================
 
 Purpose
 -------
-Demonstrating/teaching how to use the mobile phone and mobile software to many people at the same time is difficult due to the small screen size.  Ookjor lets you show the mobile screen on a computer screen wirelessly via Bluetooth. You can connect the computer to a projector for an even larger audience. 
+Ookjor brings mobile phone cameras and screens live on the computer.
+
+You can connect your computer or notebook to a projector in a meeting room, class room, event hall and:
+
+1. Use mobile phone's camera to demonstrate various things live:
+- show the person speaking
+- showcase products and services
+- write or draw diagrams on paper
+- show the audience
+- show how to do experiments
+- show how to use equipment
+- show how to cook
+- etc
+
+2. Show phone's screen live on the computer:
+- showcase new mobile phones and its usage
+- teach how to do use various mobile software
+- showcase new mobile software
 
 
 Requirements
 ------------
-- A (Nokia) Series 60 3rd/5th edition phoneSymbian phone.
-- A GNU/Linux computer/notebook with Bluetooth hardware and BlueZ dirver. Tested on Ubuntu 9.10.
-- Qt 4 needs to be installed (run in terminal: sudo apt-get install libqtcore4 libqtgui4 )
+- A (Nokia) S60 3rd/5th edition phone (Symbian OS 9.0 or newer).
+- A computer/notebook running GNU/Linux OS with Bluetooth hardware and BlueZ dirver. Tested on Ubuntu 9.10 - see www.Ubuntu.com - a great and free alternative to MS Windows.
+- Qt4 ( Go to Applications > Accessories > Terminal and type or copy-paste: sudo apt-get install libqtcore4 libqtgui4 )
 
 
 How to use
 -----------
-1. Download the latest release from http://github.com/ykasidit/Ookjor/archives/master
+1. Download the latest release from http://www.clearevo.com/ookjor
 
-2. Extract the zip, select the "Ookjor" program file right-click > properties > permissions > check the "allow to execute" checkbox. (or in terminal: chmod +x Ookjor)
+2. Extract the zip/archive file (right-click, "Extract here"), select the "Ookjor.sh" file right-click > properties > permissions > check the "allow to execute" checkbox. (or in terminal: chmod +x Ookjor.sh)
 
-3. Double click the "Ookjor" program file, or in terminal: ./Ookjor in this directory.
+3. Double click the "Ookjor.sh" file, or in terminal: ./Ookjor.sh in this directory.
 
-4. You must first install (send to phone in step 1 - "Send installer to phone" button) and run the mobile Ookjor program on your phone. 
+4. You must first install ("Send installer to phone" button in step 1) and start the mobile Ookjor program on your phone. 
    - If send fails because your system doesn't have "bluetooth-sendto" available, send the installer (OokjorS603rdAnd5th.sisx, in the folder OokjorS60/sis) to phone manually using other methods.
 
 5. Press "Connect to Mobile" on this computer Ookjor program, select your phone and the mobile screen should start showing after a few seconds.
 
+Ookjor would start the live camera view display on the computer, ready to use! If the phone automatically locks itself or a call comes in, the camera would be suspended, unlock or get back to Ookjor (press and hold the "applications" button and select Ookjor) to resume.
+
+If you want to show mobile screen instead of the camera view, select "Back" or press the "red button" on mobile.
 
 
+License
+-------
 Ookjor is Free Software. Released under the GNU GPL.
 
 Developed by Kasidit Yusuf.
