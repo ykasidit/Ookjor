@@ -1,3 +1,3 @@
 #!/bin/sh
 
-./src/Ookjor
+./bin_src/Ookjor

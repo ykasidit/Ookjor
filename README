@@ -37,7 +37,7 @@ How to use
 
 2. Extract the zip/archive file (right-click, "Extract here"), select the "Ookjor.sh" file right-click > properties > permissions > check the "allow to execute" checkbox. (or in terminal: chmod +x Ookjor.sh)
 
-3. Double click the "Ookjor.sh" file, or in terminal: ./Ookjor.sh in this directory.
+3. Double click the "Ookjor.sh" file, select "Run", or in terminal: ./Ookjor.sh in this directory.
 
 4. You must first install ("Send installer to phone" button in step 1) and start the mobile Ookjor program on your phone. 
    - If send fails because your system doesn't have "bluetooth-sendto" available, send the installer (OokjorS603rdAnd5th.sisx, in the folder OokjorS60/sis) to phone manually using other methods.
