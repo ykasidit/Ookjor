@@ -52,6 +52,7 @@ class CBtServer: public CActive
 		//CActive
 	void RunL();
 	void DoCancel();
+	TState GetState(){return iState;};
 
 protected:
 

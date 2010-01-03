@@ -95,6 +95,7 @@ COokjorAppUi::~COokjorAppUi()
 
 void COokjorAppUi::HandleForegroundEventL(TBool afg)
 {
+	/*
 	if(afg)
 	{
 		if(iAppView)
@@ -103,8 +104,9 @@ void COokjorAppUi::HandleForegroundEventL(TBool afg)
 	else
 	{
 		if(iAppView)
-			((COokjorAppView*)iAppView)->CleanupCamera();
+					((COokjorAppView*)iAppView)->CleanupCamera();
 	}
+	*/
 }
 
 
@@ -148,6 +150,10 @@ void COokjorAppUi::HandleForegroundEventL(TBool afg)
 				 TApaTask task(iEikonEnv->WsSession( ));
 				 task.SetWgId(CEikonEnv::Static()->RootWin().Identifier());
 				 task.SendToBackground();
+
+				 if(iAppView)
+					 ((COokjorAppView*)iAppView)->CleanupCamera(); //stream mobile screen instead of camera
+
 		        }
 	        break;
 

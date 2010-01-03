@@ -108,6 +108,7 @@ public:
      TInt iCaptureFormat;
      CCamAutoFocus* iAutoFocus;
 
+
 	 CBtServer::TState iBtState;// so StartCamera would know if app is in connected state or not, if connected then it would stat reserve, power on, etc.
 
 	 void SetCaptureModeL(const TSize& aSize,

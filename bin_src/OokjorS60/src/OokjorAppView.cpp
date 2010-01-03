@@ -106,14 +106,17 @@ void COokjorAppView::StartCamera()
 
 	 TRAPD(err,
 		    iCamera = CCamera::NewL(*this,0);
+			 if(iCamera) //yeah i know above would leave if not succeed, but maybe it could just return NULL witout leave - so check the ptr just in case
+			 {
 			 iCamera->CameraInfo(iInfo);
 			 TRAPD(afErr, iAutoFocus = CCamAutoFocus::NewL( iCamera ));
+			 }
 		    );
 
 		    if(!iCamera)
 		    {
-		    TBuf<32> buf;
-		    buf.Format(_L("Can't start camera: error %d"),err);
+						TBuf<32> buf;
+						buf.Format(_L("Can't start camera: error %d"),err);
 		   	        	CAknInformationNote* informationNote = new (ELeave) CAknInformationNote(ETrue);
 		   	        	informationNote->SetTimeout(CAknNoteDialog::EShortTimeout);
 		   	        	informationNote->ExecuteLD(buf);
@@ -182,6 +185,18 @@ void COokjorAppView::CleanupCamera()
 	if(iBtState > CBtServer::EConnected)
 	{
 		UpdateStatus(_L("Streaming mobile screen"));
+
+		//if in sent state, start its loop again
+		if(iBtServer->GetState() == CBtServer::EDataSent)
+		{
+					TakeScreenshot();
+					if(iJPGSSBuffer)
+					{
+					TRAPD(err,
+					iBtServer->SendL(*iJPGSSBuffer);
+					);
+					}
+		}
 	}
 }
 
@@ -282,7 +297,7 @@ void COokjorAppView::PowerOnComplete(TInt err)
 		            }
 		        }
 
-		    TSize sz = ClientRect().Size();
+		    TSize sz(320,240);
 		    iCamera->StartViewFinderBitmapsL( sz );
 
 		    //iCamera->CaptureImage();
@@ -309,21 +324,30 @@ void COokjorAppView::PowerOnComplete(TInt err)
  void COokjorAppView::ViewFinderFrameReady(CFbsBitmap &aFrame)
  {
 
+	 //dont copy/work if last fram still sending, we dont want to block the ccamera call to us too much - could result in lags
 
-
+	 //ask state from server directly
+	 if(iBtServer->GetState() == CBtServer::EDataSent) //process and send frame only if our btserverengine has done sent previous frame
+	 {
 					delete iImageEncoder;
 					delete iJPGCamBuffer;
 					iImageEncoder = NULL;
 					iJPGCamBuffer = NULL;
-
-
 
 					TRAPD(err,
 					iImageEncoder = CImageEncoder::DataNewL(iJPGCamBuffer,CImageEncoder::EOptionAlwaysThread,KImageTypeJPGUid);
 					TRequestStatus status;
 					iImageEncoder->Convert(&status,aFrame);
 					User::WaitForRequest(status);
-		 );
+					);
+
+					if(iJPGCamBuffer)
+					{
+						TRAPD(err,
+						iBtServer->SendL(*iJPGCamBuffer);
+						);
+					}
+	 }
 
  }
 
@@ -506,6 +530,9 @@ void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, 
 			container->SizeChanged();
 			container->DrawNow();
 			}
+
+			StartCamera();
+
 			if(iCamera)
 			{
 				iCamera->Reserve(); //starts the whole camera loop
@@ -518,10 +545,18 @@ void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, 
 				   	        	informationNote->ExecuteLD(_L("No camera, using Screen Export mode"));
 			}
 
-			TakeScreenshot(); //first frame init for cam case
-
+			///////send first frame
+			TakeScreenshot();
+			if(iJPGSSBuffer)
+			{
+			TRAPD(err,
+			iBtServer->SendL(*iJPGSSBuffer);
+			);
+			}
+			/////////////////
 		}
-		//CONTINUE to same handling as EDataSent so DONT BREAK - follow through
+		break;
+
 
 		case CBtServer::EDataSent:
 		{
@@ -543,21 +578,7 @@ void COokjorAppView::OnBtServerStateChanged(CBtServer::TState aState, TInt err, 
 				}
 				else
 				{
-
-					if(iJPGCamBuffer && iJPGSSBuffer)
-					{
-						delete iJPGSSBuffer;
-						iJPGSSBuffer = NULL;
-
-						iJPGSSBuffer = iJPGCamBuffer->Alloc();
-					}
-
-					if(iJPGSSBuffer)
-					{
-					TRAPD(err,
-					iBtServer->SendL(*iJPGSSBuffer);
-					);
-					}
+					//viewfinderframeready would send the frame itself
 				}
 			}
 			else

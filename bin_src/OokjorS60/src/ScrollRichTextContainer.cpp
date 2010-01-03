@@ -180,6 +180,8 @@ void CScrollRichTextContainer::HandleResourceChange( TInt aType )
         // apply new appropriate rect
         TRect rect;
         AknLayoutUtils::LayoutMetricsRect( AknLayoutUtils::EMainPane, rect );
+        if(iEditor)
+        	iEditor->SetRect(rect);
         SetRect( rect );
         }
     }
