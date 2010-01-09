@@ -35,20 +35,20 @@ Requirements
 
 How to use
 -----------
-1. Download the latest release from http://www.clearevo.com/ookjor
+1. [Download the latest release](http://github.com/ykasidit/Ookjor/archives/master).
 
-2. Extract the zip/archive file (right-click, "Extract here"), select the "Ookjor.sh" file right-click > properties > permissions > check the "allow to execute" checkbox. (or in terminal: chmod +x Ookjor.sh)
+2. Extract the zip/archive file (right-click, "Extract here"), select the "Ookjor.sh" file right-click > properties > permissions > make sure the "allow to execute" checkbox is checked. (or in terminal: chmod +x Ookjor.sh)
 
 3. Double click the "Ookjor.sh" file, select "Run", or in terminal: ./Ookjor.sh in this directory.
 
-4. You must first install ("Send installer to phone" button in step 1) and start the mobile Ookjor program on your phone. 
-   - If send fails because your system doesn't have "bluetooth-sendto" available, send the installer (OokjorS603rdAnd5th.sisx, in the folder OokjorS60/sis) to phone manually using other methods.
+4. You must first install (press "Send installer to phone" button in step 1 to send and install on phone) and start the mobile Ookjor program on your phone. (It would be in Menu > Applications > "Install. apps." or "My own", etc)
+   - If send fails because your system doesn't have "bluetooth-sendto" available, send the installer (OokjorS603rdAnd5th.sisx, in the folder bin_src/OokjorS60/sis) to phone manually using other methods.
 
-5. Press "Connect to Mobile" on this computer Ookjor program, select your phone and the mobile screen should start showing after a few seconds.
+5. When mobile phone Ookjor shows - Press "Connect" on Computer - then on this computer Ookjor program: Press "Connect to Mobile", select your phone and the mobile screen or camera should start showing in a few seconds.
 
-Ookjor would start the live camera view display on the computer, ready to use! Press the Zoom + or - buttons in the computer Ookjor to adjust.
+- Ookjor would start the live camera view display on the computer, ready to use! Press the Zoom + or - buttons in the computer Ookjor to adjust.
 
-If you want to show mobile screen instead of the camera view, select "Done" on mobile while connected.
+- If you want to show mobile screen instead of the camera view, select "Done" on mobile while connected.
 
 
 License
