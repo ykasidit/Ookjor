@@ -35,7 +35,7 @@ Requirements
 
 How to use
 -----------
-1. [Download the latest release](http://github.com/ykasidit/Ookjor/archives/master).
+1. Download the latest release from http://www.clearevo.com/ookjor
 
 2. Extract the zip/archive file (right-click, "Extract here"), select the "Ookjor.sh" file right-click > properties > permissions > make sure the "allow to execute" checkbox is checked. (or in terminal: chmod +x Ookjor.sh)
 
