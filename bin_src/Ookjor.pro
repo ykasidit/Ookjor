@@ -17,16 +17,17 @@ TARGET = Ookjor
 TEMPLATE = app
 SOURCES += main.cpp \
     ookjorwindow.cpp \
-    ookjorengine.cpp \
     selectphonedialog.cpp \
-    aboutookjordialog.cpp
+    aboutookjordialog.cpp \    
+    ookjorbluezengine.cpp
 HEADERS += ookjorwindow.h \
     ookjorengine.h \
     selectphonedialog.h \
-    aboutookjordialog.h
+    aboutookjordialog.h \
+    ookjorbluezengine.h \
+    kasiditbtengine.h
 FORMS += ookjorwindow.ui \
     selectphonedialog.ui \
     aboutookjordialog.ui
 LIBS += -lbluetooth
 RESOURCES += ookjor_res.qrc
-

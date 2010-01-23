@@ -28,6 +28,8 @@
 #include <QFile>
  #include <QFileInfo>
 
+#include "ookjorbluezengine.h"
+
 OokjorWindow::OokjorWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::OokjorWindow)
 {
@@ -40,7 +42,7 @@ OokjorWindow::OokjorWindow(QWidget *parent)
 
     qDebug(QCoreApplication::argv()[0]);
 
-    iCOokjorEngine = new OokjorEngine(this);
+    iCOokjorEngine = new OokjorBlueZEngine(this);
 
     QObject::connect(iCOokjorEngine, SIGNAL(EngineStateChangeSignal(int)),this, SLOT (EngineStateChangeSlot(int)));
     QObject::connect(iCOokjorEngine, SIGNAL(EngineStatusMessageSignal(QString)),this, SLOT (EngineStatusMessageSlot(QString)));

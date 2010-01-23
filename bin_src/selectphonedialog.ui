@@ -22,7 +22,7 @@
      <item>
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Make sure Ookjor for mobile is installed/running</string>
+        <string>Make sure Ookjor for mobile is installed and running</string>
        </property>
       </widget>
      </item>

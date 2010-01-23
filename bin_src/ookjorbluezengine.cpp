@@ -17,7 +17,7 @@
     along with Ookjor.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ookjorengine.h"
+#include "ookjorbluezengine.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -40,7 +40,7 @@
 const int KMaxInBufferLen = 1024*1024*2;
 
 
-OokjorEngine::OokjorEngine(QWidget* aParentWindow)
+OokjorBlueZEngine::OokjorBlueZEngine(QWidget* aParentWindow)
 {
    iParentWindow = aParentWindow;
    QObject::connect(this, SIGNAL(EngineStateChangeSignal(int)),this, SLOT (EngineStateChangeSlot(int)));
@@ -48,7 +48,7 @@ OokjorEngine::OokjorEngine(QWidget* aParentWindow)
     iLiveSocketToDisconnect = 0;
 }
 
-OokjorEngine::~OokjorEngine()
+OokjorBlueZEngine::~OokjorBlueZEngine()
 {
     if(iLiveSocketToDisconnect!=0)
         Disconnect(); //this would stop running rfcomm thread
@@ -59,17 +59,12 @@ OokjorEngine::~OokjorEngine()
     delete iThread;
 }
 
-void OokjorEngine::CopyBDADDR(uint8_t* src,uint8_t* dst)
-{
-    int i;
-    for(i=0;i<6;i++)
-        dst[i] = src[i];
-}
+
 
 
 ///////////search
 
-void OokjorEngine::CSearchThread::run()
+void OokjorBlueZEngine::CSearchThread::run()
 {
     //////////code adapted from http://people.csail.mit.edu/albert/bluez-intro/c404.html
     inquiry_info *ii = NULL;
@@ -139,7 +134,7 @@ void OokjorEngine::CSearchThread::run()
     ////////////////////////////
 }
 
-void OokjorEngine::CSDPThread::run()
+void OokjorBlueZEngine::CSDPThread::run()
 {
     perror("entered sdp run");
 
@@ -250,7 +245,7 @@ void OokjorEngine::CSDPThread::run()
     emit iFather.EngineStateChangeSignal(EBtSearchingSDPDone);
 }
 
-void OokjorEngine::OnNewJpgData(QByteArray& ba)
+void OokjorBlueZEngine::OnNewJpgData(QByteArray& ba)
 {
     iMutex.lock();
     iNewJpgBuffer = ba;
@@ -260,7 +255,7 @@ void OokjorEngine::OnNewJpgData(QByteArray& ba)
 }
 
 //adapted from http://people.csail.mit.edu/albert/bluez-intro/x502.html
-void OokjorEngine::CRFCOMMThread::run()
+void OokjorBlueZEngine::CRFCOMMThread::run()
 {
     const int KReadBuffSize = 100*1024;//100kb buffer
     uint8_t* buf = (uint8_t*) malloc(KReadBuffSize);
@@ -435,7 +430,7 @@ void OokjorEngine::CRFCOMMThread::run()
 
 }
 
-bool OokjorEngine::StartSearch()
+bool OokjorBlueZEngine::StartSearch()
 {
     if(iThread && iThread->isRunning())
     {
@@ -451,19 +446,15 @@ bool OokjorEngine::StartSearch()
     return true;
 }
 
-void OokjorEngine::CancelSearch()
-{
 
-}
-
-void OokjorEngine::GetDevListClone(QList<TBtDevInfo>& aDevList)
+void OokjorBlueZEngine::GetDevListClone(QList<TBtDevInfo>& aDevList)
 {
     iMutex.lock();
     aDevList = iDevList;
     iMutex.unlock();
 }
 
-void OokjorEngine::Disconnect()
+void OokjorBlueZEngine::Disconnect()
 {
     qDebug("preparing to close socket handle %d",iLiveSocketToDisconnect);
     close(iLiveSocketToDisconnect); //thise would cause the CRFCOMMThread to quit as it's waiting on read
@@ -471,10 +462,10 @@ void OokjorEngine::Disconnect()
     iLiveSocketToDisconnect = 0;
 }
 
-void OokjorEngine::StartPrevdev(QByteArray& ba)
+void OokjorBlueZEngine::StartPrevdev(QByteArray& ba)
 {
 
-    emit EngineStateChangeSignal(OokjorEngine::EBtSearching); //let the ui prepare to go to sdp state
+    emit EngineStateChangeSignal(OokjorBlueZEngine::EBtSearching); //let the ui prepare to go to sdp state
     iDevList.clear();
 
     TBtDevInfo devinfo;
@@ -485,7 +476,7 @@ void OokjorEngine::StartPrevdev(QByteArray& ba)
     StartSDPToSelectedDev(0);
 }
 
-void OokjorEngine::StartSDPToSelectedDev(int aSelIndex)
+void OokjorBlueZEngine::StartSDPToSelectedDev(int aSelIndex)
 {
                     iSelectedIndex = aSelIndex;
                     qDebug("user selected index: %d",aSelIndex);
@@ -517,16 +508,16 @@ void OokjorEngine::StartSDPToSelectedDev(int aSelIndex)
                     ////////////////
 
 }
-void OokjorEngine::EngineStateChangeSlot(int aState)
+void OokjorBlueZEngine::EngineStateChangeSlot(int aState)
 {    
     switch(aState)
     {
-    case OokjorEngine::EBtIdle:      
+    case OokjorBlueZEngine::EBtIdle:
         iLiveSocketToDisconnect = 0;
         break;
-    case OokjorEngine::EBtSearching:        
+    case OokjorBlueZEngine::EBtSearching:
         break;
-    case OokjorEngine::EBtSelectingPhoneToSDP:
+    case OokjorBlueZEngine::EBtSelectingPhoneToSDP:
         {
             if(iDevList.isEmpty())
             {
@@ -553,7 +544,7 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
             }
         }
         break;
-    case OokjorEngine::EBtSearchingSDP:
+    case OokjorBlueZEngine::EBtSearchingSDP:
     {
 
 
@@ -562,7 +553,7 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
     }
         break;
 
-    case OokjorEngine::EBtSearchingSDPDone:
+    case OokjorBlueZEngine::EBtSearchingSDPDone:
     {
             if(iRFCOMMChannel<0) //not found
             {
@@ -594,13 +585,13 @@ void OokjorEngine::EngineStateChangeSlot(int aState)
 
 
 
-    case OokjorEngine::EBtConnectingRFCOMM:
+    case OokjorBlueZEngine::EBtConnectingRFCOMM:
 
         break;
-    case OokjorEngine::EBtConnectionActive:
+    case OokjorBlueZEngine::EBtConnectionActive:
 
         break;
-    case OokjorEngine::EBtDisconnected:
+    case OokjorBlueZEngine::EBtDisconnected:
         iLiveSocketToDisconnect = 0;
         break;
     default:
