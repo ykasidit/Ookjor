@@ -18,14 +18,15 @@ TEMPLATE = app
 SOURCES += main.cpp \
     ookjorwindow.cpp \
     selectphonedialog.cpp \
-    aboutookjordialog.cpp \    
-    ookjorbluezengine.cpp
+    aboutookjordialog.cpp \
+    kasiditbluezengine.cpp \
+    ookjorengine.cpp
 HEADERS += ookjorwindow.h \
     ookjorengine.h \
     selectphonedialog.h \
     aboutookjordialog.h \
-    ookjorbluezengine.h \
-    kasiditbtengine.h
+    kasiditbtengine.h \
+    kasiditbluezengine.h
 FORMS += ookjorwindow.ui \
     selectphonedialog.ui \
     aboutookjordialog.ui

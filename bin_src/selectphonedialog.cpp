@@ -9,7 +9,7 @@ SelectPhoneDialog::SelectPhoneDialog(QWidget *parent) :
     iReturnSelectedIndex = NULL;
 }
 
-void SelectPhoneDialog::SetList(QList<OokjorEngine::TBtDevInfo>& aList, int* aReturnSelectedIndex)
+void SelectPhoneDialog::SetList(QList<KasiditBTEngine::TBtDevInfo>& aList, int* aReturnSelectedIndex)
 {
     iReturnSelectedIndex = aReturnSelectedIndex;
 

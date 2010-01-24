@@ -1,23 +1,5 @@
-/*
-    Copyright (C) 2009 Kasidit Yusuf.
+#include "kasiditbluezengine.h"
 
-    This file is part of Ookjor.
-
-    Ookjor is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Ookjor is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with Ookjor.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-#include "ookjorbluezengine.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -37,10 +19,7 @@
 
 #include <QFile>
 
-const int KMaxInBufferLen = 1024*1024*2;
-
-
-OokjorBlueZEngine::OokjorBlueZEngine(QWidget* aParentWindow)
+KasiditBlueZEngine::KasiditBlueZEngine(const uint8_t* aSvc_uuid_int, QWidget* aParentWindow):KasiditBTEngine(aSvc_uuid_int)
 {
    iParentWindow = aParentWindow;
    QObject::connect(this, SIGNAL(EngineStateChangeSignal(int)),this, SLOT (EngineStateChangeSlot(int)));
@@ -48,10 +27,10 @@ OokjorBlueZEngine::OokjorBlueZEngine(QWidget* aParentWindow)
     iLiveSocketToDisconnect = 0;
 }
 
-OokjorBlueZEngine::~OokjorBlueZEngine()
+KasiditBlueZEngine::~KasiditBlueZEngine()
 {
     if(iLiveSocketToDisconnect!=0)
-        Disconnect(); //this would stop running rfcomm thread
+        Disconnect(); //this would stop running rfcomm thread, if not - in some cases user needs to close the mobile phone's bt to unblock this.
 
     if(iThread && iThread->isRunning())
         iThread->wait();
@@ -60,11 +39,9 @@ OokjorBlueZEngine::~OokjorBlueZEngine()
 }
 
 
-
-
 ///////////search
 
-void OokjorBlueZEngine::CSearchThread::run()
+void KasiditBlueZEngine::CSearchThread::run()
 {
     //////////code adapted from http://people.csail.mit.edu/albert/bluez-intro/c404.html
     inquiry_info *ii = NULL;
@@ -76,7 +53,7 @@ void OokjorBlueZEngine::CSearchThread::run()
 
     emit iFather.EngineStateChangeSignal(EBtSearching);
 
-    emit iFather.EngineStatusMessageSignal("Searching...");    
+    emit iFather.EngineStatusMessageSignal("Searching...");
 
 
     iFather.iMutex.lock();
@@ -134,7 +111,7 @@ void OokjorBlueZEngine::CSearchThread::run()
     ////////////////////////////
 }
 
-void OokjorBlueZEngine::CSDPThread::run()
+void KasiditBlueZEngine::CSDPThread::run()
 {
     perror("entered sdp run");
 
@@ -146,10 +123,6 @@ void OokjorBlueZEngine::CSDPThread::run()
     iFather.iMutex.unlock();
 
             //adjusted from http://people.csail.mit.edu/albert/bluez-intro/x604.html
-
-            // Ookjor mobile service id 0x2BC2B92E,0x399211DC, 0x83140800, 0x200C9A38
-            uint8_t svc_uuid_int[] = {0x2B,0xC2,0xB9,0x2E,0x39,0x92,0x11,0xDC,0x83,0x14,0x08,0x00,0x20,0x0C,0x9A,0x38};
-
             uuid_t svc_uuid;
             int err;
             bdaddr_t target;
@@ -167,14 +140,14 @@ void OokjorBlueZEngine::CSDPThread::run()
             if(errno!=0)
             {
             perror("errno not 0 - sdp_connect failed");
-            emit iFather.EngineStatusMessageSignal("Failed to connect to \"previously connected device\"");            
+            emit iFather.EngineStatusMessageSignal("Failed to connect to \"previously connected device\"");
             emit iFather.EngineStateChangeSignal(EBtSearchingSDPDone);
             sdp_close(session);
             return;
             }
 
             // specify the UUID of the application we're searching for
-            sdp_uuid128_create( &svc_uuid, &svc_uuid_int );
+            sdp_uuid128_create( &svc_uuid, iFather.iSvc_uuid_int );
             perror("sdp state 1");
             search_list = sdp_list_append( NULL, &svc_uuid );
             perror("sdp state 2");
@@ -222,7 +195,7 @@ void OokjorBlueZEngine::CSDPThread::run()
                         case SDP_UINT8:
                             if( proto == RFCOMM_UUID ) {
                                 qDebug("rfcomm channel: %d\n",d->val.int8);
-                                channel = d->val.int8;                                
+                                channel = d->val.int8;
                             }
                             break;
                     }
@@ -245,17 +218,9 @@ void OokjorBlueZEngine::CSDPThread::run()
     emit iFather.EngineStateChangeSignal(EBtSearchingSDPDone);
 }
 
-void OokjorBlueZEngine::OnNewJpgData(QByteArray& ba)
-{
-    iMutex.lock();
-    iNewJpgBuffer = ba;
-    iMutex.unlock();    
-
-    emit GotNewJpgSignal();
-}
 
 //adapted from http://people.csail.mit.edu/albert/bluez-intro/x502.html
-void OokjorBlueZEngine::CRFCOMMThread::run()
+void KasiditBlueZEngine::CRFCOMMThread::run()
 {
     const int KReadBuffSize = 100*1024;//100kb buffer
     uint8_t* buf = (uint8_t*) malloc(KReadBuffSize);
@@ -317,7 +282,7 @@ void OokjorBlueZEngine::CRFCOMMThread::run()
         //sleep(2);
 
         //no need mutex here because the button to disconnect (that would call close on socket handle iLiveSocketToDisconnect) isn't shown yet
-            iFather.iMutex.lock();
+         iFather.iMutex.lock();
          iFather.iLiveSocketToDisconnect = s;
          iFather.iMutex.unlock();
 
@@ -342,9 +307,6 @@ void OokjorBlueZEngine::CRFCOMMThread::run()
         //uint32_t totalb=0;
         //char progress;
 
-        int jpgstartindex,jpgendindex;
-
-
         while(true)
         {
             //memset(buf,0,KReadBuffSize);
@@ -353,50 +315,8 @@ void OokjorBlueZEngine::CRFCOMMThread::run()
             //perror("Read %d bytes",bytes_read);
             if( bytes_read > 0 )
             {
-                /*QString str;
-                switch(count%4)
-                {
-                case 0: progress = '/';break;
-                case 1: progress = '-';break;
-                case 2: progress = '\\';break;
-                case 3: progress = '|';break;
-                }
-                totalb += bytes_read;*/
-
-                if(jpgbuff.length() > KMaxInBufferLen)
-                    jpgbuff.clear();
-
-                jpgbuff.append((const char*)buf,bytes_read);
-
-                //find and report all jpgs found
-
-                while(true)
-                {
-                    //perror("finding jpg in buffer");
-
-                    jpgstartindex = jpgbuff.indexOf(qKJpgHeader);
-                    jpgendindex = jpgbuff.indexOf(qKJpgFooter);
-
-                    if(jpgstartindex>=0 && jpgendindex > jpgstartindex)
-                    {
-                        QByteArray ajpg = jpgbuff.mid(jpgstartindex,jpgendindex-jpgstartindex);
-                        iFather.OnNewJpgData(ajpg);
-                        jpgbuff.remove(0,jpgendindex+1);
-                        //perror("found jpeg");
-                    }
-                    else
-                    {
-                        //perror("no more jpeg");
-                        break;
-                    }
-
-                }
-
-                //////////
-
-
-
-
+                QByteArray ba((const char*)buf,bytes_read);
+                emit iFather.RFCOMMDataReceivedSignal(ba);
             }
             else
             {
@@ -412,7 +332,7 @@ void OokjorBlueZEngine::CRFCOMMThread::run()
             count = 0;
             */
         }
-        
+
 
 
     }
@@ -420,7 +340,7 @@ void OokjorBlueZEngine::CRFCOMMThread::run()
     if( status < 0 )
         {
             qDebug("open socket failed status %d",status);
-            emit iFather.EngineStatusMessageSignal("Connect Failed");            
+            emit iFather.EngineStatusMessageSignal("Connect Failed");
         }
 
     emit iFather.EngineStateChangeSignal(EBtIdle);
@@ -430,7 +350,7 @@ void OokjorBlueZEngine::CRFCOMMThread::run()
 
 }
 
-bool OokjorBlueZEngine::StartSearch()
+bool KasiditBlueZEngine::StartSearch()
 {
     if(iThread && iThread->isRunning())
     {
@@ -447,14 +367,14 @@ bool OokjorBlueZEngine::StartSearch()
 }
 
 
-void OokjorBlueZEngine::GetDevListClone(QList<TBtDevInfo>& aDevList)
+void KasiditBlueZEngine::GetDevListClone(QList<TBtDevInfo>& aDevList)
 {
     iMutex.lock();
     aDevList = iDevList;
     iMutex.unlock();
 }
 
-void OokjorBlueZEngine::Disconnect()
+void KasiditBlueZEngine::Disconnect()
 {
     qDebug("preparing to close socket handle %d",iLiveSocketToDisconnect);
     close(iLiveSocketToDisconnect); //thise would cause the CRFCOMMThread to quit as it's waiting on read
@@ -462,10 +382,10 @@ void OokjorBlueZEngine::Disconnect()
     iLiveSocketToDisconnect = 0;
 }
 
-void OokjorBlueZEngine::StartPrevdev(QByteArray& ba)
+void KasiditBlueZEngine::StartPrevdev(QByteArray& ba)
 {
 
-    emit EngineStateChangeSignal(OokjorBlueZEngine::EBtSearching); //let the ui prepare to go to sdp state
+    emit EngineStateChangeSignal(KasiditBlueZEngine::EBtSearching); //let the ui prepare to go to sdp state
     iDevList.clear();
 
     TBtDevInfo devinfo;
@@ -476,7 +396,7 @@ void OokjorBlueZEngine::StartPrevdev(QByteArray& ba)
     StartSDPToSelectedDev(0);
 }
 
-void OokjorBlueZEngine::StartSDPToSelectedDev(int aSelIndex)
+void KasiditBlueZEngine::StartSDPToSelectedDev(int aSelIndex)
 {
                     iSelectedIndex = aSelIndex;
                     qDebug("user selected index: %d",aSelIndex);
@@ -508,20 +428,20 @@ void OokjorBlueZEngine::StartSDPToSelectedDev(int aSelIndex)
                     ////////////////
 
 }
-void OokjorBlueZEngine::EngineStateChangeSlot(int aState)
-{    
+void KasiditBlueZEngine::EngineStateChangeSlot(int aState)
+{
     switch(aState)
     {
-    case OokjorBlueZEngine::EBtIdle:
+    case KasiditBlueZEngine::EBtIdle:
         iLiveSocketToDisconnect = 0;
         break;
-    case OokjorBlueZEngine::EBtSearching:
+    case KasiditBlueZEngine::EBtSearching:
         break;
-    case OokjorBlueZEngine::EBtSelectingPhoneToSDP:
+    case KasiditBlueZEngine::EBtSelectingPhoneToSDP:
         {
             if(iDevList.isEmpty())
             {
-                QMessageBox::information(iParentWindow, tr("Ookjor: No nearby Bluetooth devices found"),tr("No nearby Bluetooth devices found.\r\n\r\nPlease install or start (if already installed) the Ookjor mobile program on your phone and try again."));                
+                QMessageBox::information(iParentWindow, tr("No nearby Bluetooth devices found"),tr("No nearby Bluetooth devices found.\r\n\r\nPlease install or start (if already installed) the mobile program on your phone and try again."));
                 emit EngineStatusMessageSignal("No nearby Bluetooth devices found");
                 emit EngineStateChangeSignal(EBtIdle);
             }
@@ -537,14 +457,14 @@ void OokjorBlueZEngine::EngineStateChangeSlot(int aState)
                  StartSDPToSelectedDev(aSelIndex);
                 }
                 else //closed/cancelled
-                {                    
+                {
                     emit EngineStateChangeSignal(EBtIdle);
                     emit EngineStatusMessageSignal("Connect Cancelled");
                 }
             }
         }
         break;
-    case OokjorBlueZEngine::EBtSearchingSDP:
+    case KasiditBlueZEngine::EBtSearchingSDP:
     {
 
 
@@ -553,12 +473,12 @@ void OokjorBlueZEngine::EngineStateChangeSlot(int aState)
     }
         break;
 
-    case OokjorBlueZEngine::EBtSearchingSDPDone:
+    case KasiditBlueZEngine::EBtSearchingSDPDone:
     {
             if(iRFCOMMChannel<0) //not found
             {
-                emit EngineStatusMessageSignal("ookjor not opened on mobile");
-                QMessageBox::information(iParentWindow, tr("Ookjor not started on phone"),tr("Can't find Ookjor running on selected mobile.\r\n\r\nPlease install/start the Ookjor mobile program on your phone and try again."));
+                emit EngineStatusMessageSignal("mobile program not started");
+                QMessageBox::information(iParentWindow, tr("program not started on phone"),tr("Can't find the mobile-side program running on selected mobile.\r\n\r\nPlease install/start the mobile program on your phone and try again."));
                 emit EngineStateChangeSignal(EBtIdle);
             }
             else
@@ -576,7 +496,7 @@ void OokjorBlueZEngine::EngineStateChangeSlot(int aState)
                 delete iThread;
 
                 iThread = new CRFCOMMThread(*this);
-                iThread->start();                
+                iThread->start();
                 ////////////////
 
             }
@@ -585,20 +505,20 @@ void OokjorBlueZEngine::EngineStateChangeSlot(int aState)
 
 
 
-    case OokjorBlueZEngine::EBtConnectingRFCOMM:
+    case KasiditBlueZEngine::EBtConnectingRFCOMM:
 
         break;
-    case OokjorBlueZEngine::EBtConnectionActive:
+    case KasiditBlueZEngine::EBtConnectionActive:
 
         break;
-    case OokjorBlueZEngine::EBtDisconnected:
+    case KasiditBlueZEngine::EBtDisconnected:
         iLiveSocketToDisconnect = 0;
         break;
     default:
 
         break;
 
-    }   
+    }
 }
 
 /////////////////

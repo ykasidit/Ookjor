@@ -21,16 +21,30 @@
 #define OOKJORENGINE_H
 
 #include <QObject>
-
 #include "kasiditbtengine.h"
 
-class OokjorEngine : public KasiditBTEngine
-{
+class OokjorEngine : public QObject
+{    
     Q_OBJECT
 
     public:
-    virtual ~OokjorEngine(){}
+    OokjorEngine(QWidget* aParentWindow);
+    ~OokjorEngine();
     QByteArray iNewJpgBuffer;
+    KasiditBTEngine* GetBTEngine();
+
+    signals:
+    void GotNewJpgSignal();
+
+    protected slots:
+    void RFCOMMDataReceivedSlot(QByteArray ba);
+
+    protected:
+    KasiditBTEngine* iBTEngine;
+    QByteArray iJpgbuff;
+    QByteArray iKJpgHeader,iKJpgFooter;
+
+    //QWidget* iParentWindow;
 };
 
 

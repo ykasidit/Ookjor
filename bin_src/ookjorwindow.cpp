@@ -28,7 +28,7 @@
 #include <QFile>
  #include <QFileInfo>
 
-#include "ookjorbluezengine.h"
+#include "ookjorengine.h"
 
 OokjorWindow::OokjorWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::OokjorWindow)
@@ -42,10 +42,15 @@ OokjorWindow::OokjorWindow(QWidget *parent)
 
     qDebug(QCoreApplication::argv()[0]);
 
-    iCOokjorEngine = new OokjorBlueZEngine(this);
+    iCOokjorEngine = new OokjorEngine(this);
 
-    QObject::connect(iCOokjorEngine, SIGNAL(EngineStateChangeSignal(int)),this, SLOT (EngineStateChangeSlot(int)));
-    QObject::connect(iCOokjorEngine, SIGNAL(EngineStatusMessageSignal(QString)),this, SLOT (EngineStatusMessageSlot(QString)));
+    if(iCOokjorEngine->GetBTEngine() == NULL)
+    {
+    QMessageBox::critical(this, tr("No Bluetooth device found on this computer"),tr("Ookjor can't find any Bluetooth device on this computer (running the BlueZ driver).\r\nPlease get/start/insert your Blueooth device (USB/onboard/etc..) and try again."));
+    }
+
+    QObject::connect(iCOokjorEngine->GetBTEngine(), SIGNAL(EngineStateChangeSignal(int)),this, SLOT (EngineStateChangeSlot(int)));
+    QObject::connect(iCOokjorEngine->GetBTEngine(), SIGNAL(EngineStatusMessageSignal(QString)),this, SLOT (EngineStatusMessageSlot(QString)));
     QObject::connect(iCOokjorEngine, SIGNAL(GotNewJpgSignal(void)),this, SLOT (GotNewJpgSlot(void)));
 
     //test load pic
@@ -101,7 +106,7 @@ OokjorWindow::OokjorWindow(QWidget *parent)
       }
       /////////
 
-    EngineStateChangeSlot(OokjorEngine::EBtIdle);
+    EngineStateChangeSlot(KasiditBTEngine::EBtIdle);
 
 }
 
@@ -144,11 +149,11 @@ void OokjorWindow::on_connectButton_clicked()
     if(ui->connectPrevCheckBox->isChecked() && this->iPrevDevAddr.length()==6)
     {        
         qDebug("starting connect to prevdev");
-        iCOokjorEngine->StartPrevdev(iPrevDevAddr);
+        iCOokjorEngine->GetBTEngine()->StartPrevdev(iPrevDevAddr);
     }
 else
     {
-        if(!iCOokjorEngine->StartSearch())
+        if(!iCOokjorEngine->GetBTEngine()->StartSearch())
         {
             ui->statusBar->showMessage("Start search failed...",3000);
         }
@@ -167,7 +172,7 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
 {
     switch(aState)
     {
-    case OokjorEngine::EBtIdle:
+    case KasiditBTEngine::EBtIdle:
 
         ui->liveWidget->hide();
         ui->liveDisconnectButton->hide();
@@ -184,7 +189,7 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
 
 
         break;
-    case OokjorEngine::EBtSearching:
+    case KasiditBTEngine::EBtSearching:
         ui->groupBox_1->hide();
 
         ui->connectPrevCheckBox->hide();
@@ -197,19 +202,19 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
         //this->adjustSize();
         //this->resize(this->minimumSize());
         break;
-    case OokjorEngine::EBtSelectingPhoneToSDP:
+    case KasiditBTEngine::EBtSelectingPhoneToSDP:
 
         break;
-    case OokjorEngine::EBtSearchingSDP:
+    case KasiditBTEngine::EBtSearchingSDP:
 
         break;
-    case OokjorEngine::EBtSearchingSDPDone:
+    case KasiditBTEngine::EBtSearchingSDPDone:
 
         break;
-    case OokjorEngine::EBtConnectingRFCOMM:
+    case KasiditBTEngine::EBtConnectingRFCOMM:
 
         break;
-    case OokjorEngine::EBtConnectionActive:
+    case KasiditBTEngine::EBtConnectionActive:
 
         ui->groupBox_2->hide();
 
@@ -222,7 +227,7 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
 
     //this->adjustSize();
         break;
-    case OokjorEngine::EBtDisconnected:
+    case KasiditBTEngine::EBtDisconnected:
 
         break;
     default:
@@ -253,7 +258,7 @@ void OokjorWindow::on_liveDisconnectButton_clicked()
 {
     ui->liveDisconnectButton->setEnabled(false);
     qDebug("user pressed disconnect");
-    iCOokjorEngine->Disconnect();
+    iCOokjorEngine->GetBTEngine()->Disconnect();
     qDebug("probably closed engine running socket already");
 }
 

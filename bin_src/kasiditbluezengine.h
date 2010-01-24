@@ -1,14 +1,12 @@
-#ifndef OOKJORBLUEZENGINE_H
-#define OOKJORBLUEZENGINE_H
+#ifndef KASIDITBLUEZENGINE_H
+#define KASIDITBLUEZENGINE_H
 
+#include "kasiditbtengine.h"
 
-
-#include <QPixmap>
 #include <QList>
 #include <QString>
 #include <QThread>
 #include <QMutex>
-
 
 #include <stdio.h>
 #include <unistd.h>
@@ -16,54 +14,51 @@
 #include <bluetooth/bluetooth.h>
 #include <bluetooth/rfcomm.h>
 
-#include "ookjorengine.h"
-
-class OokjorBlueZEngine : public OokjorEngine
+class KasiditBlueZEngine : public KasiditBTEngine
 {
     Q_OBJECT
 
     public:
-    OokjorBlueZEngine(QWidget* aParentWindow);
-    virtual ~OokjorBlueZEngine();
+    KasiditBlueZEngine(const uint8_t* aSvc_uuid_int, QWidget* aParentWindow);
+    virtual ~KasiditBlueZEngine();
 
     signals:
     virtual void EngineStateChangeSignal(int aState);
-    virtual void EngineStatusMessageSignal(QString str);
-
-    void GotNewJpgSignal();
+    virtual void EngineStatusMessageSignal(QString str);    
+    virtual void RFCOMMDataReceivedSignal(QByteArray ba);
 
     public slots:
-    void EngineStateChangeSlot(int aState);
+    void EngineStateChangeSlot(int aState); // to detect/handle our own state change made by bt operation threads
 
     public:
-    ///////////search
 
+    ///////////bt operation thread classes and functions
 
         class CBtEngineThread : public QThread
         {
             public:
-            CBtEngineThread(OokjorBlueZEngine &aFather):iFather(aFather){}
-            OokjorBlueZEngine &iFather;
+            CBtEngineThread(KasiditBlueZEngine &aFather):iFather(aFather){}
+            KasiditBlueZEngine &iFather;
         };
 
         class CSearchThread : public CBtEngineThread
         {
          public:
-             CSearchThread(OokjorBlueZEngine &aFather):CBtEngineThread(aFather){}
+             CSearchThread(KasiditBlueZEngine &aFather):CBtEngineThread(aFather){}
              void run();
         };
 
         class CSDPThread : public CBtEngineThread
         {
          public:
-             CSDPThread(OokjorBlueZEngine &aFather):CBtEngineThread(aFather){}
+             CSDPThread(KasiditBlueZEngine &aFather):CBtEngineThread(aFather){}
              void run();
         };
 
         class CRFCOMMThread : public CBtEngineThread
         {
          public:
-             CRFCOMMThread(OokjorBlueZEngine &aFather):CBtEngineThread(aFather){}
+             CRFCOMMThread(KasiditBlueZEngine &aFather):CBtEngineThread(aFather){}
              void run();
 
              struct sockaddr_rc addr;
@@ -81,7 +76,6 @@ class OokjorBlueZEngine : public OokjorEngine
         virtual void Disconnect();
     /////////////////
 
-     void OnNewJpgData(QByteArray& ba);
 private:
 
     ////////////////////////for shared stuff between current and result thread like iDevlist
@@ -95,7 +89,6 @@ private:
     int iSelectedIndex;
 
     QWidget* iParentWindow;
-
 };
 
-#endif // OOKJORBLUEZENGINE_H
+#endif // KASIDITBLUEZENGINE_H

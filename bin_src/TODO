@@ -1,3 +1,16 @@
+- for better re-use of the btengine classes	
+	- make signal to save bt address of connected device in kasiditbtengine, not just write to file directly as in kasiditbluezengine, so prevdev.bdaddr can be saved/managed by app/engine to appropriate places - not by btengine.
+	- change the way infomsgs are shown - use as signals and let main app/ookjorengine handle instead of show directly from kasiditbluezengine, so main app/engine can decide and show better custom message/pictures to help user overcome each step.
+
+- kasiditbluezengine can probably be moved up into kasiditbtengine, so it's easier to make new bt stack handler engines
+
+- separate kasiditbtengine into its own project and use as a shared-object/library + header so we/others can re-use it in many other apps dynamically
+
+
+
+
+
+
 - make zoom on pc, widget should be resizable smaller than pic too
 - make zoom on mobile
 - make autofocus select on mobile (close-up/near, protrait, normal, infinite)
