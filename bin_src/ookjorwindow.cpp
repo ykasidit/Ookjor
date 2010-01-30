@@ -106,7 +106,7 @@ OokjorWindow::OokjorWindow(QWidget *parent)
       }
       /////////
 
-    EngineStateChangeSlot(KasiditBTEngine::EBtIdle);
+    EngineStateChangeSlot(PatienceBTClientEngine::EBtIdle);
 
 }
 
@@ -172,7 +172,7 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
 {
     switch(aState)
     {
-    case KasiditBTEngine::EBtIdle:
+    case PatienceBTClientEngine::EBtIdle:
 
         ui->liveWidget->hide();
         ui->liveDisconnectButton->hide();
@@ -189,7 +189,7 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
 
 
         break;
-    case KasiditBTEngine::EBtSearching:
+    case PatienceBTClientEngine::EBtSearching:
         ui->groupBox_1->hide();
 
         ui->connectPrevCheckBox->hide();
@@ -202,19 +202,19 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
         //this->adjustSize();
         //this->resize(this->minimumSize());
         break;
-    case KasiditBTEngine::EBtSelectingPhoneToSDP:
+    case PatienceBTClientEngine::EBtSelectingPhoneToSDP:
 
         break;
-    case KasiditBTEngine::EBtSearchingSDP:
+    case PatienceBTClientEngine::EBtSearchingSDP:
 
         break;
-    case KasiditBTEngine::EBtSearchingSDPDone:
+    case PatienceBTClientEngine::EBtSearchingSDPDone:
 
         break;
-    case KasiditBTEngine::EBtConnectingRFCOMM:
+    case PatienceBTClientEngine::EBtConnectingRFCOMM:
 
         break;
-    case KasiditBTEngine::EBtConnectionActive:
+    case PatienceBTClientEngine::EBtConnectionActive:
 
         ui->groupBox_2->hide();
 
@@ -227,7 +227,7 @@ void OokjorWindow::EngineStateChangeSlot(int aState)
 
     //this->adjustSize();
         break;
-    case KasiditBTEngine::EBtDisconnected:
+    case PatienceBTClientEngine::EBtDisconnected:
 
         break;
     default:

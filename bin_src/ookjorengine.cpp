@@ -18,7 +18,9 @@
 */
 
 #include "ookjorengine.h"
-#include "kasiditbluezengine.h"
+#include "patiencebluezengine.h"
+#include "selectphonedialog.h"
+#include <QMessageBox>
 
 //http://en.wikipedia.org/wiki/JPEG
 const uint8_t KJpgHeader[] = {0xFF,0xD8};
@@ -35,15 +37,43 @@ OokjorEngine::OokjorEngine(QWidget* aParentWindow)
     iKJpgFooter.append((const char*)KJpgFooter,2);
 
     iBTEngine = NULL;
-    iBTEngine = new KasiditBlueZEngine(KOokjorSvc_uuid_int,aParentWindow);
+    iBTEngine = new PatienceBlueZEngine(*this,KOokjorSvc_uuid_int);
 
     if(iBTEngine)
     {
     QObject::connect(iBTEngine, SIGNAL(RFCOMMDataReceivedSignal(QByteArray)),this, SLOT (RFCOMMDataReceivedSlot(QByteArray)));
+    QObject::connect(iBTEngine, SIGNAL(EngineErrorSignal(int)),this, SLOT (EngineErrorSlot(int)));
     }
+    iParentWindow = aParentWindow;
 }
 
-KasiditBTEngine* OokjorEngine::GetBTEngine()
+void OokjorEngine::EngineErrorSlot(int aError)//TPatinceBTClientError
+{
+    PatienceBTClientEngine::TPatinceBTClientError code = (PatienceBTClientEngine::TPatinceBTClientError)aError;
+    switch(code)
+    {
+        case PatienceBTClientEngine::ENoLocalBTDriver: break;
+        case PatienceBTClientEngine::ENoLocalBTRadio: break;
+        case PatienceBTClientEngine::EInquiryFoundNoDevices:
+            QMessageBox::information(iParentWindow, tr("No nearby Bluetooth devices found"),tr("No nearby Bluetooth devices found.\r\n\r\nPlease install or start (if already installed) Ookjor on your phone and try again."));
+             break;
+        case PatienceBTClientEngine::EServiceNotFoundOnDevice:
+            QMessageBox::information(iParentWindow, tr("Ookjor not started on phone"),tr("Can't find the mobile-side Ookjor running on selected mobile.\r\n\r\nPlease install/start the Ookjor mobile program on your phone and try again."));
+            break;
+
+    };
+}
+
+
+void OokjorEngine::OnSelectBtDevice(QList<TBtDevInfo>& aList, int& aReturnSelectedIndex)
+{
+    SelectPhoneDialog sd;
+    sd.SetList(aList,&aReturnSelectedIndex);
+    sd.exec();
+}
+
+
+PatienceBTClientEngine* OokjorEngine::GetBTEngine()
 {
     return iBTEngine;
 }

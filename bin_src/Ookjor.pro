@@ -19,16 +19,23 @@ SOURCES += main.cpp \
     ookjorwindow.cpp \
     selectphonedialog.cpp \
     aboutookjordialog.cpp \
-    kasiditbluezengine.cpp \
     ookjorengine.cpp
 HEADERS += ookjorwindow.h \
     ookjorengine.h \
     selectphonedialog.h \
     aboutookjordialog.h \
     kasiditbtengine.h \
-    kasiditbluezengine.h
+    kasiditbluezengine.h \
+    patiencebluezengine.h \
+    patiencebtengine.h
 FORMS += ookjorwindow.ui \
     selectphonedialog.ui \
     aboutookjordialog.ui
-LIBS += -lbluetooth
+
+# add library search path for local folder (where we store the libPatienceBTEngine.so stuff)
+LIBS += -L.
+
+LIBS += -lbluetooth \
+        -lPatienceBTEngine
+
 RESOURCES += ookjor_res.qrc

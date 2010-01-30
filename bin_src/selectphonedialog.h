@@ -16,7 +16,7 @@ public:
     explicit SelectPhoneDialog(QWidget *parent = 0);
     virtual ~SelectPhoneDialog();
 
-    void SetList(QList<KasiditBTEngine::TBtDevInfo>& aList, int* aReturnSelectedIndex);
+    void SetList(QList<TBtDevInfo>& aList, int* aReturnSelectedIndex);
 
 protected:
     virtual void changeEvent(QEvent *e);

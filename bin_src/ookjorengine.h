@@ -21,9 +21,10 @@
 #define OOKJORENGINE_H
 
 #include <QObject>
-#include "kasiditbtengine.h"
 
-class OokjorEngine : public QObject
+#include "patiencebtengine.h"
+
+class OokjorEngine : public QObject, public MPatineceBTEngineCaller
 {    
     Q_OBJECT
 
@@ -31,20 +32,25 @@ class OokjorEngine : public QObject
     OokjorEngine(QWidget* aParentWindow);
     ~OokjorEngine();
     QByteArray iNewJpgBuffer;
-    KasiditBTEngine* GetBTEngine();
+    PatienceBTClientEngine* GetBTEngine();
+
+    ///////////MPatineceBTEngineCaller
+    virtual void OnSelectBtDevice(QList<TBtDevInfo>& aList, int& aReturnSelectedIndex);
+    //////////
 
     signals:
     void GotNewJpgSignal();
 
     protected slots:
     void RFCOMMDataReceivedSlot(QByteArray ba);
+    void EngineErrorSlot(int aError);//TPatinceBTClientError
 
     protected:
-    KasiditBTEngine* iBTEngine;
+    PatienceBTClientEngine* iBTEngine;
     QByteArray iJpgbuff;
     QByteArray iKJpgHeader,iKJpgFooter;
 
-    //QWidget* iParentWindow;
+    QWidget* iParentWindow;
 };
 
 
