@@ -51,6 +51,11 @@ How to use
 - If you want to show mobile screen instead of the camera view, select "Done" on mobile while connected.
 
 
+Bluetooth Engine Library
+----------
+Ookjor's bluetooth engine is now separated into its own project/library to be easier to adapt for use in other apps. The engine is PatienceBTEngine: http://github.com/ykasidit/PatienceBTEngine
+
+
 License
 -------
 Copyright (C) 2009 Kasidit Yusuf.
