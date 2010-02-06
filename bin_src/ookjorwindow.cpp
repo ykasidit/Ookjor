@@ -47,6 +47,8 @@ OokjorWindow::OokjorWindow(QWidget *parent)
     if(iCOokjorEngine->GetBTEngine() == NULL)
     {
     QMessageBox::critical(this, tr("No Bluetooth device found on this computer"),tr("Ookjor can't find any Bluetooth device on this computer (running the BlueZ driver).\r\nPlease get/start/insert your Blueooth device (USB/onboard/etc..) and try again."));
+    exit(1);
+    return;
     }
 
     QObject::connect(iCOokjorEngine->GetBTEngine(), SIGNAL(EngineStateChangeSignal(int)),this, SLOT (EngineStateChangeSlot(int)));
