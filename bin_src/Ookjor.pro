@@ -32,7 +32,7 @@ FORMS += ookjorwindow.ui \
     aboutookjordialog.ui
 z
 # add library search path for local folder (where we store the libPatienceBTEngine.so stuff)
-INCLUDEPATH += ..\..\PatienceBTEngine
+win32: INCLUDEPATH += ..\..\PatienceBTEngine
 
 unix {
 LIBS += -L.
