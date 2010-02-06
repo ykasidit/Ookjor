@@ -30,7 +30,7 @@ HEADERS += ookjorwindow.h \
 FORMS += ookjorwindow.ui \
     selectphonedialog.ui \
     aboutookjordialog.ui
-z
+
 # add library search path for local folder (where we store the libPatienceBTEngine.so stuff)
 win32: INCLUDEPATH += ..\..\PatienceBTEngine
 
