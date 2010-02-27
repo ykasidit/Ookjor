@@ -18,9 +18,12 @@
 */
 
 #include "ookjorengine.h"
-#include "patiencebluezengine.h"
 #include "selectphonedialog.h"
 #include <QMessageBox>
+
+#ifdef Q_WS_X11
+#include "patiencebluezengine.h"
+#endif
 
 //http://en.wikipedia.org/wiki/JPEG
 const uint8_t KJpgHeader[] = {0xFF,0xD8};
@@ -37,7 +40,10 @@ OokjorEngine::OokjorEngine(QWidget* aParentWindow)
     iKJpgFooter.append((const char*)KJpgFooter,2);
 
     iBTEngine = NULL;
+
+#ifdef Q_WS_X11
     iBTEngine = new PatienceBlueZEngine(*this,KOokjorSvc_uuid_int);
+#endif
 
     if(iBTEngine)
     {

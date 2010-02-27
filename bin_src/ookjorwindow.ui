@@ -21,7 +21,7 @@
   </property>
   <property name="styleSheet">
    <string notr="true">QGroupBox {
-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 lightblue, stop: 1 navy);
+color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 darkgreen, stop: 1 navy);
 }
 </string>
   </property>
@@ -268,7 +268,7 @@ color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 lightblue, stop: 1 na
      <x>0</x>
      <y>0</y>
      <width>398</width>
-     <height>28</height>
+     <height>25</height>
     </rect>
    </property>
    <property name="sizePolicy">
