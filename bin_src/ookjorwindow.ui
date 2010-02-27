@@ -20,7 +20,10 @@
    <string>Ookjor for S60</string>
   </property>
   <property name="styleSheet">
-   <string notr="true"/>
+   <string notr="true">QGroupBox {
+color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 lightblue, stop: 1 navy);
+}
+</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
@@ -265,7 +268,7 @@
      <x>0</x>
      <y>0</y>
      <width>398</width>
-     <height>25</height>
+     <height>28</height>
     </rect>
    </property>
    <property name="sizePolicy">

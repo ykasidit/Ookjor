@@ -26,7 +26,9 @@
 #include <QGraphicsTextItem>
 #include <QMovie>
 #include <QFile>
- #include <QFileInfo>
+#include <QFileInfo>
+
+#include <QGtkStyle>
 
 #include "ookjorengine.h"
 
@@ -39,6 +41,7 @@ OokjorWindow::OokjorWindow(QWidget *parent)
     iFirstSendInstaller = true;
     iFirstConnect = true;
 
+     QApplication::setStyle(new  QGtkStyle);
 
     qDebug(QCoreApplication::argv()[0]);
 
@@ -47,6 +50,7 @@ OokjorWindow::OokjorWindow(QWidget *parent)
     if(iCOokjorEngine->GetBTEngine() == NULL)
     {
     QMessageBox::critical(this, tr("No Bluetooth device found on this computer"),tr("Ookjor can't find any Bluetooth device on this computer (running the BlueZ driver).\r\nPlease get/start/insert your Blueooth device (USB/onboard/etc..) and try again."));
+    exit(1);
     }
 
     QObject::connect(iCOokjorEngine->GetBTEngine(), SIGNAL(EngineStateChangeSignal(int)),this, SLOT (EngineStateChangeSlot(int)));
