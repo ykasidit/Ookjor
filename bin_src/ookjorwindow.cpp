@@ -41,7 +41,9 @@ OokjorWindow::OokjorWindow(QWidget *parent)
     iFirstSendInstaller = true;
     iFirstConnect = true;
 
-     QApplication::setStyle(new  QGtkStyle);
+     //QApplication::setStyle(new  QGtkStyle);
+    //QApplication::setStyle(new  QCleanlooksStyle);
+
 
     qDebug(QCoreApplication::argv()[0]);
 
