@@ -24,7 +24,7 @@ Here's the template:
 %{"GNU ideals-EN"}
 
 ;Unique Vendor name
-:"www.ClearEvo.com"
+:"a GNU programmer"
 
 ;Supports S60 release 5.0
 [0x1028315F], 0, 0, 0, {"Series60ProductID"}
