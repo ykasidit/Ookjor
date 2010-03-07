@@ -1,0 +1,47 @@
+Compiling the Computer Ookjor program
+====================================
+
+IDE way: 
+	- Simply use the "Qt Creator" IDE to open "Ookjor.pro" project file in bin_src folder and compile from there.
+
+
+Compiling the Symbian S60 Ookjor program
+========================================
+
+General Symbian MMP build. Please see instructions here http://www.clearevo.com/blog/programming/2009/06/05/symbian_c%2B%2B_on_linux_using_gnupoc_and_eclipse_cdt.html
+
+For creating the sis - make your own pkg file, manually replace <your sdk path> with your sdk path. (I still can't find a way to use something like EPOCROOT in the pkg file built in GNU/Linux.)
+
+Here's the template:
+
+;Language - standard language definitions
+&EN
+
+; standard SIS file header
+#{"Ookjor"},(0xA000EC71),1,1,9
+
+;Localised Vendor name
+%{"GNU ideals-EN"}
+
+;Unique Vendor name
+:"www.ClearEvo.com"
+
+;Supports S60 release 5.0
+[0x1028315F], 0, 0, 0, {"Series60ProductID"}
+
+;Files to install
+;You should change the source paths to match that of your environment
+;<source> <destination>
+"<your sdk path>/s60_31/epoc32\release\gcce\urel\Ookjor.exe"		-"C:\sys\bin\Ookjor.exe"
+"<your sdk path>/s60_31/epoc32\data\z\resource\apps\Ookjor.r01"		-"C:\resource\apps\Ookjor.rsc"
+"<your sdk path>/s60_31/epoc32\data\z\private\10003a3f\apps\Ookjor_reg.ren"	-"C:\private\10003a3f\import\apps\Ookjor_reg.rsc"
+"<your sdk path>/s60_50/epoc32\data\z\resource\apps\Ookjor.mif" -"C:\resource\apps\Ookjor.mif"
+"<your sdk path>/s60_31/epoc32\data\ookjormain.mbm" -"C:\private\A000EC71\ookjormain.mbm"
+
+
+""-"C:\private\A000EC71\Ookjor.ini",FN
+
+"..\sis\backup_registration.xml"		-"C:\private\A000EC71\backup_registration.xml"
+
+
+
