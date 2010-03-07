@@ -55,6 +55,10 @@ Bluetooth Engine Library
 ----------
 Ookjor's bluetooth engine has been adjusted to become its own project/library to be easier to adapt for use in other apps. The engine is PatienceBTEngine: http://github.com/ykasidit/PatienceBTEngine
 
+Compiling
+---------
+Please see HOWTO_COMPILE file.
+
 
 License
 -------
