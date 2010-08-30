@@ -35,7 +35,7 @@ Requirements
 
 How to use
 -----------
-1. Download the latest release from http://www.clearevo.com/ookjor
+1. Download the latest release from <http://www.clearevo.com/ookjor>
 
 2. Extract the zip/archive file (right-click, "Extract here"), select the "Ookjor.sh" file right-click > properties > permissions > make sure the "allow to execute" checkbox is checked. (or in terminal: chmod +x Ookjor.sh)
 
@@ -53,7 +53,7 @@ How to use
 
 Bluetooth Engine Library
 ----------
-Ookjor's bluetooth engine has been adjusted to become its own project/library to be easier to adapt for use in other apps. The engine is PatienceBTEngine: http://github.com/ykasidit/PatienceBTEngine
+Ookjor's bluetooth engine has been adjusted to become its own project/library to be easier to adapt for use in other apps. The engine is PatienceBTEngine: >http://github.com/ykasidit/PatienceBTEngine>
 
 Compiling
 ---------
@@ -83,4 +83,4 @@ along with Ookjor.  If not, see <http://www.gnu.org/licenses/>.
 About
 -------
 Ookjor was developed by Kasidit Yusuf.
-Please visit the official page on http://www.clearevo.com/ookjor for more info.
+Please visit the official page on <http://www.clearevo.com/ookjor> for more info.
