@@ -29,7 +29,7 @@ Usage
 Requirements
 ------------
 - A (Nokia) S60 3rd/5th edition phone (Symbian OS 9.0 or newer).
-- A computer/notebook running GNU/Linux OS with Bluetooth hardware and BlueZ dirver. Tested on Ubuntu 9.10 - see www.Ubuntu.com - a great and free alternative to MS Windows.
+- A computer/notebook running GNU/Linux OS with Bluetooth hardware and BlueZ dirver. Tested on Ubuntu 9.10 - see <http://www.ubuntu.com> - a great and free alternative to MS Windows.
 - Qt4 ( Go to Applications > Accessories > Terminal and type or copy-paste: sudo apt-get install libqtcore4 libqtgui4 )
 
 
@@ -53,7 +53,7 @@ How to use
 
 Bluetooth Engine Library
 ----------
-Ookjor's bluetooth engine has been adjusted to become its own project/library to be easier to adapt for use in other apps. The engine is PatienceBTEngine: >http://github.com/ykasidit/PatienceBTEngine>
+Ookjor's bluetooth engine has been adjusted to become its own project/library to be easier to adapt for use in other apps. The engine is PatienceBTEngine: <http://github.com/ykasidit/PatienceBTEngine>
 
 Compiling
 ---------
